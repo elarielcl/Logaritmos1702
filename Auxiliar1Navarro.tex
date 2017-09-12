@@ -1,0 +1,206 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+\newtheorem{appr}{Aproximación de Stirling}
+\newtheorem*{appr*}{Aproximación de Stirling}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Auxiliar 1 - ``Cotas Inferiores"}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+\begin{center}
+14 de Agosto del 2017
+\end{center}
+
+
+\vspace{-1ex}
+
+\cfoot{``It was a game called Yes and No, where Scrooge's nephew had to think of something, and the rest must find out what; he only answering to their questions yes or no, as the case was...''\\A Christmas Carol, Charles Dickens}
+
+\begin{problems}
+\section*{Teoría de la Información}
+\problem Decimos que un arreglo $A[1\ldots n]$ está \textbf{$k$-ordenado} si puede ser dividido en $k$ bloques, cada uno de tamaño $\frac{n}{k}$ (asumimos que $\frac{n}{k}$ es un entero), de modo que los elementos de cada bloque son mayores que elementos de bloques anteriores. Los elementos en cada bloque no necesitan estar ordenados.
+\begin{enumerate}[a)]
+    \item Describa un algoritmo que ``$k$-ordene'' un arreglo arbitrario en $\mathcal{O}(n\log k)$.
+    \item Muestre que cualquier algoritmo basado en comparaciones que $k$-ordene, requiere $\Omega(n\log k)$ en el peor caso.
+    \item Describa un algoritmo que ordene un arreglo $k$-ordenado en $\mathcal{O}\left(n\log\left(\frac{n}{k}\right)\right)$.
+    \item Muestre que cualquier algoritmo basado en comparaciones que ordene un arreglo $k$-ordenado requiere $\Omega\left(n\log\left(\frac{n}{k}\right)\right)$.
+\end{enumerate}
+\problem Supongamos que tenemos las probabilidades $\{p_{1},\ldots, p_{n}\}$, tales que $\sum_{i=1}^n p_{i} = 1$. El \textbf{algoritmo de Huffman} construye un árbol binario que tiene estas probabilidades en sus hojas y minimiza $\sum_{i=1}^n p_{i}n_{i}$, donde $n_{i}$ es la profundidad de $p_{i}$ en el árbol.
+\begin{enumerate}[a)]
+\item Suponga que las probabilidades vienen ordenadas de forma creciente. ¿Cómo implementaría el algoritmo para que tuviera costo total $\mathcal{O}(n)$ y costo $\mathcal{O}(1)$ por operación?
+\item Demuestre la correctitud del algoritmo de Huffman.
+\end{enumerate}
+\section*{Adversario}
+\problem Considere una propiedad $P$ de los grafos no dirigidos sin loops; por ejemplo, conectividad, aciclicidad, no-planaridad. Sea $G = (V, E)$ un grafo no completo; es decir, no todo par en $V\times V$ corresponde a un arco en E. Decimos que $G$ es crítico para $P$ si $G$ no tiene la propiedad $P$, pero al agregarle cualquier arco en $(V\times V)\setminus E$ obtenemos un grafo $G'$ que satisface $P$. Definimos $x := |(V\times V )\setminus E|$.\\
+Sea $\mathcal{H}$ el conjunto de los grafos que utilizan el mismo conjunto de vértices $V$ que un grafo crítico $G$
+para $P$. Considere un algoritmo que verifica si un grafo $H \in \mathcal{H}$ tiene la propiedad $P$ utilizando solo
+preguntas de la forma: ¿existe un arco entre los vértices $u$ y $v$?. \\
+Muestre que este algoritmo debe
+realizar a lo menos $x$ preguntas.
+\problem Muestre que el problema de encontrar el máximo y el segundo máximo, en un modelo basado en comparaciones, toma al menos $n + \lceil\log{n}\rceil - 2$.
+\section*{Reducción}
+\problem El problema $3SUM$ consiste encontrar $3$ números diferentes (de un conjunto de $n$ números) cuya suma sea $0$.
+\begin{enumerate}[a)]
+\item Muestre que el problema de \textbf{$3$ puntos colineales} (encontrar 3 puntos colineales en un conjunto de puntos) es $3SUM-hard$.
+\item Muestre que el problema de \textbf{$3$ en una línea} (encontrar si hay un punto común a 3 líneas en un conjunto de líneas) es $3SUM-hard$.
+\end{enumerate}
+\end{problems}
+\newpage
+\begin{center}
+{\huge \underline{Soluciones}}
+\end{center}
+\begin{problems}
+\section*{Teoría de la Información}
+\problem 
+\begin{appr*}\perfect\\
+\begin{align*}
+n!&\approx {\sqrt {2\pi n}}\left({\frac {n}{e}}\right)^{n}\\
+\log{n!} &= n\log{n} + \mathcal{O}(n)
+\end{align*}
+\end{appr*}
+\begin{teo}\jewel\\
+Todo árbol binario con $n$ hojas tiene altura $h \ge \log_{2} n$
+\end{teo}
+\begin{enumerate}[a)]
+\item Supongamos para simplificar que $k = 2^r$. Para resolver el problema utilizaremos una modificación del algoritmo de quicksort, y un algoritmo que encuentra la mediana en tiempo lineal \footnote{Un algoritmo de búsqueda de media en tiempo lineal se basa en la elección de pivote de mediana de medianas, una explicación del algoritmo se puede encontrar en \href{https://users.dcc.uchile.cl/~mcaceres/MedianFinding.pdf}{https://users.dcc.uchile.cl/$\sim$mcaceres/MedianFinding.pdf}}. Para esto utilizaremos:
+\begin{itemize}
+    \item \texttt{particionar(A, i, j, p)}: \textit{particionar} $A[i:j]$ usando el pivote en p.
+    \item \texttt{posicionMediana(A, i, j)} : devuelve el índice de la mediana en $A[i:j]$.
+\end{itemize}
+Con esto construimos el algoritmo \textit{kSort(A, i, j, k)} que $k$-ordena el arreglo $A[i,j]$:\\
+\begin{algorithm}[H]
+\SetAlgoLined
+\SetKwProg{Fn}{Funcion}{}{}
+\Fn{kSort (A, i, j, k)}{
+    \If{$k=1$}{
+        \Return
+    }
+    particionar(A, i, j, posicionMediana(A, i, j))\\
+    kSort(A, i, (i+j)/2, k/2)\\
+    kSort(A, (i+j+2)/2, j, k/2)
+}
+\end{algorithm}
+Finalmente, la profundidad de la recursión generada a partir de \texttt{kSort(A, 1, n, k)} es $\log{k}$ (pues el parámetro $k$ se divide a la mitad cada vez) y en cada nivel se hace trabajo lineal en el tamaño del arreglo, por lo que este algoritmo toma $\mathcal{O}(n\log{k})$.
+\item Las hojas del árbol de decisión respectivo contienen conjuntos de permutaciones que tienen los mismos elementos en los mismos bloques. Podemos contar esto considerando todas las permutaciones posibles y descontando los órdenes dentro de los grupos de tamaño $\frac{n}{k}$. Así, el árbol de decisión correspondiente tendrá $\frac{n!}{\left(\left(\frac{n}{k}\right)!\right)^k}$ hojas y por \jewel su altura debe ser  $\ge \log{\frac{n!}{\left(\left(\frac{n}{k}\right)!\right)^k}} = \log{n!} - \log{\left(\left(\frac{n}{k}\right)!\right)^k} \perfect = n\log{n} - k \frac{n}{k}\log{\frac{n}{k}} + \mathcal{O}(n) = \Omega(n\log{k})$
+\item Para esto basta con ordenar, con un algoritmo de ordenación óptimo, cada uno de los $k$ bloques a un costo de $\mathcal{O}\left(\frac{n}{k}\log{\frac{n}{k}}\right)$ cada uno, teniendo de esta forma un costo total de $\mathcal{O}\left(n\log{\frac{n}{k}}\right)$\flash
+\item Las hojas del árbol de decisión respectivo contienen cada uno de los $\left(\left(\frac{n}{k}\right)!\right)^k$ posibles inputs y por lo tanto una cota inferior para el problema será $\log{\left(\left(\frac{n}{k}\right)!\right)^k} = k \left(\frac{n}{k} \log{\frac{n}{k}} + \mathcal{O}\left(\frac{n}{k}\right)\right) = \Omega\left(\frac{n}{k}\log{\frac{n}{k}}\right)$
+\end{enumerate}
+\problem 
+\begin{enumerate}[a)]
+    \item Si usamos 2 colas, una para nodos sin hijos $C_{1}$, en donde ponemos inicialmente los nodos con sus probabilidades ordenadas de forma creciente, y otra para los árboles que tienen hijos $C_{2}$ formados por el algoritmo, luego lo que hacemos es tomar los dos mínimos desde el frente de esas colas fusionarlos como antes y dejarlos al final de $C_{2}$ podemos hacer el algoritmo en tiempo $\mathcal{O}(n)$ (notar que el costo del algoritmo es simplemente el número de fusiones de Huffman que son $\le 2n$ pues lo formado finalmente es un árbol).
+    \item Para demostrar la correctitud de Huffman demostraremos lo siguiente:
+    \begin{center}
+    ``Dado un conjunto de $i$ probabilidades, el algoritmo de Huffman construye un código óptimo'' \footnote{Para demostrar que el código construído es óptimo veremos que su largo esperado es $\le$ al de algún otro código óptimo.}
+    \end{center}
+    Por inducción en $i$. En el caso base $i=2$ Huffman entrega el único árbol que representa un código libre de prefijos, por lo que este es óptimo. Para el paso inductivo asumiremos el enunciado cierto para valores menores a $i$.\\
+    Sea $T_{H}$ el árbol entregado por el algoritmo de Huffman corrido sobre las probabilidades $p_{1},\ldots,p_{i}$ y definamos el peso del árbol $W(T_{H})$ como el largo esperado de la codificación, es decir $\sum_{j=1}^i p_{j}n_{j}$. Supongamos ahora que $p_{l}$ y $p_{m}$ son los primeros 2 símbolos escogidos por Huffman (es decir los dos menores) y sea $T_{H}^*$ el árbol de aplicar Huffman sobre las probabilidades $\{p_{1},\ldots,p_{i}, p_{l}+p_{m}\}\setminus\{p_{l}, p_{m}\}$ que por hipótesis inductiva ($i-1$ probabilidades) es óptimo.\\
+    
+    Notemos ahora que se cumple $W(T_{H}) = W(T_{H}^*) + (p_{l}+p_{m})$, puesto que correr el algoritmo sobre las nuevas probabilidades es lo mismo que correrlo sobre las antiguas a partir de la segunda iteración y además este nuevo nodo $p_{l}+p_{m}$ estará un nivel más arriba que los dos nodos $p_{l}$ y $p_{m}$.\\
+    
+    Ahora consideremos un árbol óptimo $T$ para las probabilidades  $p_{1},\ldots,p_{i}$ de altura $h$. Notemos que tanto $p_{l}$ como $p_{m}$ deben estar ambos a profundidad $h$, pues:
+    \begin{itemize}
+        \item Si ambos están a una profundidad $<h$ podría cambiar cualquiera de ellos con un nodo de profundidad $h$ generando un árbol de menor (contradicción con que $T$ es óptimo) o igual (renombro $T$ de modo que el nuevo $T$ también es óptimo) $W$.
+        \item Si solo uno de ellos está a profundidad $h$ significaría que es el único a profundidad $h$ (si no intercambio el otro con el que no está a profundidad $h$ generando un árbol de menor (contradicción con que $T$ es óptimo) o igual (renombro $T$ de modo que el nuevo $T$ también es óptimo) $W$), pero esto es una contradicción pues podría quitarle un bit a su codificación y obtener un árbol de peso menor.
+    \end{itemize}
+    
+    Asumamos ahora que $p_{l}$ y $p_{m}$ son hermanos en $T$ (si no lo fuesen intercambiamos al hermano de $p_{l}$ por $p_{m}$ renombrando $T$ y obteniendo un nuevo $T$ que también es óptimo). Consideremos además el árbol $T^*$ obtenido de reemplazar el padre de $p_{l}$ y $p_{m}$ por el nodo $p_{m}+p_{l}$. Con un razonamiento análogo al anterior obtenemos que $W(T) = W(T^*) + (p_{l}+p_{m})$.\\
+    
+    Finalmente como $T_H^*$ es óptimo (por H.I.), se cumple que:
+    \begin{align*}
+        W(T_H^*) &\le W(T^*) \\
+        W(T_H^*) + (p_{l}+p_{m}) &\le W(T^*) + (p_{l}+p_{m})\\
+        W(T_H) &\le W(T)
+    \end{align*}
+    Y como $T$ es óptimo $T_H$, el árbol generado por Huffman, también lo será.
+\end{enumerate}
+\section*{Adversario}
+\problem Cada vez que el algoritmo pregunta si existe arista $(u,v)$, el adversario responde sí en caso que $(u,v)$ sea una arista del grafo crítico $G$, y no en caso contrario. Asumamos por contradicción que el algoritmo hizo $y < x$ preguntas. Entonces hay un par $(u,v)\in (V\times V)\setminus E$ para el cual el algoritmo no ha preguntado su existencia. Sea $G'$ el grafo obtenido desde $G$ agregando el arco $(u,v)$. Notemos que $G$ y $G'$ son lógicamente correcto respecto a las respuestas que el adversario le dio al algoritmo. Sin embargo, $G$ no cumple $\mathcal{P}$ pero $G'$ si lo hace (ya que $G$ es crítico para $\mathcal{P}$), lo que es una contradicción.
+\problem Sea $\mathcal{A}$ un algoritmo que resuelve el problema, $A$ el máximo y $B$ el segundo máximo. Entonces, podemos separar las comparaciones realizadas por $\mathcal{A}$ en:
+\begin{enumerate}[a)]
+    \item Comparaciones entre $A$ y otro elemento.
+    \item Comparaciones que no involucran a $A$.
+\end{enumerate}
+Primero veamos que b) $\ge n-2$, pues el resto de los elementos (que no son $A$ ni $B$) fueron comparados con $B$ o entre ellos. Esto pues si el elemento no fue comparado con nadie, puedo ``postularlo como el verdadero máximo'' (en vez de $A$) llegando a una contradicción con la correctitud de $\mathcal{A}$. De manera análoga si solo fue comparado con $A$, puedo ``postularlo como el segundo máximo''.\\
+
+Veamos ahora que a) $\ge \lceil \log{n} \rceil$.\\
+Sea adversario \demon, que mantiene una función $\omega(i)$ de pesos de sus elementos.\\
+Inicialmente todos los elementos parten con un peso igual a $1$. Luego, si el algoritmo pregunta por la comparación entre dos elementos, se le responde tal como antes (si es que ya se había hecho esta pregunta) y en caso contrario, el \demon responde que es mayor aquel elemento que tenga mayor peso (responde conservando consistencia con sus preguntas anteriores) y actualiza los pesos agregándole todo el peso del perdedor de la comparación al ganador de esta.\\
+
+Veamos que se cumplen las siguientes propiedades:
+\begin{itemize}
+    \item $\omega(i) = 0$, solo si $i$ ha perdido alguna comparación.
+    \item Si $\omega(i) > 0$, $i$ aún es un candidato a ser el máximo.
+    \item La suma de los pesos siempre es $n$.
+    \item Se debe cumplir que $\mathcal{A}$ al finalizar,  todos los pesos de los elementos sean $0$ salvo el de $A$ (si no tendría dos candidatos factibles a máximo). Y en tal caso se cumple que $\omega(A) = n$.
+\end{itemize}
+Finalmente, notamos que lo máximo que puede crecer el peso de un elemento en una iteración es duplicar su peso (cuando los pesos de los elementos enfrentados son iguales). Y por lo tanto, para pasar de $1$ a $n$ necesita al menos $\lceil \log{n} \rceil$ incrementos. Luego necesita al menos $\lceil \log{n} \rceil$ comparaciones.
+\section*{Reducción}
+\problem Para reducir desde $3-SUM$ a \textit{3 puntos colineales}, transformaremos los números $x_{1}, \ldots , x_{n}$ del input de $3-SUM$ en los puntos $(x_{1}, x_{1}^3), \ldots, (x_{n}, x_{n}^3)$ y se lo daremos como input a \textit{3 puntos colineales}.\\
+Veamos ahora que si existían 3 números distintos cuya suma fuese $0$, digamos $a+b+c=0$, entonces los puntos $(a, a^3), (b, b^3), (c, c^3) = (a, a^3), (b, b^3), (-a-b, -(a+b)^3)$ son colineales (se puede verificar calculando la pendiente de cualquier par de puntos, observando luego que su pendiente es la misma).\\
+Del mismo modo, si tres puntos $(a, a^3), (b, b^3), (c, c^3)$ son colineales, entonces, las pendientes del primero con el segundo y del primero con el tercero deben serlo, es decir:
+\begin{align*}
+\frac{b^3 - a^3}{b - a} &= \frac{c^3 - a^3}{c - a}\\
+b^2 + ab + a^2 &= c^2 + ac + a^2\\
+(a + b + c)(b - c) = 0
+\end{align*}
+Y como $(b, b^3)$ y $(c, c^3)$ son puntos distintos, entonces $(a+ b + c)$.
+\problem Para mostrar que \textit{3 en una línea} es $3SUM-hard$ reduciremos desde \textit{3 puntos colineales}. Sea entonces $(a,b)$ un punto del problema \textit{3 puntos colineales}, para este creamos la recta $ax+by+1 = 0$. Todas estas rectas se las pasamos como input al problema \textit{3 en una línea}.\\
+
+De este modo, si el problema \textit{3 en una línea} encuentra un punto $(x_{1}, y_{1})$ coincidente a tres rectas, significa que este punto satisface la ecuación de estas tres rectas, es decir:
+\begin{align*}
+    a_{1}x_{1} + b_{1}y_{1} + 1 &= 0\\
+    a_{2}x_{2} + b_{2}y_{2} + 1 &= 0\\
+    a_{3}x_{3} + b_{3}y_{3} + 1 &= 0
+\end{align*}
+y por lo tanto, $(a_{1}, b_{1}), (a_{2}, b_{2}), (a_{3}, b_{3})$, pertenecen a la recta $x_{1}x + y_{1}y + 1 = 0$ siendo una instancia que satisface \textit{3 puntos colineales}. De manera análoga se puede verificar la recíproca, siendo la reducción válida.
+\end{problems}
+\end{document}
+

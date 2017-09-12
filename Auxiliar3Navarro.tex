@@ -1,0 +1,218 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Auxiliar 3 - ``Jamais Vu"}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+\begin{center}
+28 de Agosto del 2017
+\end{center}
+
+
+\vspace{-1ex}
+
+\cfoot{``There's an opposite to Deja vu. They call it jamais vu. It's when you meet the same people or visit places, again and again, but each time is the first. Everybody is a stranger. Nothing is ever familiar''\\Chuck Palahniuk}
+
+\begin{problems}
+\section*{Cotas inferiores}
+\problem {\large\underline{\textbf{Mediana}}}\\
+Considere el problema de encontrar la mediana de un arreglo desordenado, $A[1\ldots n]$ ($n$ impar).\\
+En un modelo basado en comparaciones:
+\begin{enumerate}[a)]
+    \item Muestre que el problema es $\mathcal{O}(n)$
+    \item Muestre que $\frac{3(n-1)}{2}$ es una cota inferior del problema
+\end{enumerate}
+\section*{Memoria Externa}
+\problem {\large\underline{\textbf{Lista Enlazada}}}\\
+Cree una implementación de una \textit{Lista Enlazada} que permita realizar las operaciones de:
+\begin{itemize}
+    \item Inserción
+    \item Borrado
+    \item Concatenación
+\end{itemize}
+en $\mathcal{O}(1)$ operaciones I/O. Además debe permitir búsqueda de un elemento en $\mathcal{O}(n)$
+\problem {\large\underline{\textbf{BFS}}}\\
+Considere un almacenamiento en disco para grafos no dirigidos $G(V, E)$, con $|V| = n$ y $|E| = e$, usando un archivo ordenado para la lista de adyacencia de cada nodo. Escriba el pseudocódigo de un algoritmo que implemente \textit{recorrido en amplitud} (o BFS) sobre el grafo y haga $\mathcal{O}(n + \frac{e}{B}\log_{m} \frac{e}{B})$ operaciones I/O.
+\end{problems}
+\newpage
+\begin{problems}
+\problem 
+\begin{enumerate}[a)]
+    \item Un algoritmo con peor caso lineal es el algoritmo \textit{Mediana de medianas}. Este particiona el arreglo a partir de un pivote ``bien escogido''\\
+    \begin{algorithm}[H]
+    \SetAlgoLined
+    \SetKwProg{Fn}{Funcion}{}{}
+    \Fn{$select (A, k)$}{
+        Dividir $A$ en $\frac{n}{5}$ grupos de $5$ elementos\\
+        Ordenar cada grupo en $\mathcal{O}(1)$ y todos en $\mathcal{O}(n)$ \\
+        $C\gets \{\text{Medianas de los grupos}\}$, en $\mathcal{O}(n)$\\
+        $x\gets select (C, n/10)$, que sería la mediana de las medianas\\
+        $i\gets particionar(A,x)$, en $\mathcal{O}(n)$\\
+        \If{$i == k$}{
+            \Return $A[i]$
+        } \ElseIf{ $i > k$ }{
+            \Return $select (A[1:i-1], k)$
+        } \Else{
+            \Return $select (A[i+1:n], k-i)$
+            
+        }
+    }
+    \end{algorithm}
+    La gracia de escoger nuestro pivote $x$ como la mediana de las medianas de los grupos es, que puedo asegurar:
+    \begin{itemize}
+        \item $x$ es mayor a al menos $3(n/10 - 2)$ elementos, pues como es la mediana de un grupo de tamaño $n/5$, es mayor que $n/10-1 elementos$ los cuales son medianas de sus grupos y por lo tanto cada uno mayor a 2 elementos.
+        \item $x$ es menor a al menos $3(n/10 - 2)$ elementos, por un argumento análogo al anterior.
+    \end{itemize}
+    Y por lo tanto el segundo llamado recursivo que se hace se puede asegurar que tendrá tamaño de a lo más $7n/10+6$.
+    Con la ecuación de recurrencia que mide el costo del algoritmo queda:
+    \begin{align*}
+    T(n) = \begin{cases} 
+      \mathcal{O}(1) & n \leq n_0 \\
+       \mathcal{O}(n) + T(n/5) + T(7n/10+6) & si\ no  
+   \end{cases}
+    \end{align*}
+    que puede ser demostrado por inducción que es $\mathcal{O}(n)$
+    \item Nombremos $m$ como la mediana del conjunto.
+    \begin{defi}
+    Diremos que la comparación de un elemento $x$ con otro $y$ fue crucial para $x$ si:
+    \begin{itemize}
+    \item Es la primera vez que se comparan
+    \item Sabemos que $y\le m$ y el resultado de la comparación fue $x<y$
+    \item Sabemos que $y\ge m$ y el resultado de la comparación fue $x>y$
+    \end{itemize}
+    \end{defi}
+    Veamos primero que todo algoritmo debe hacer al menos $n-1$ comparaciones cruciales, pues ni no fuese así podríamos encontrar un elemento $x$ distinto de la mediana con al cual no se le realizó una comparación crucial y por lo tanto no podemos saber si este es menor o mayor a la mediana, alterando la verdadera mediana a nuestro parecer.\\
+    
+    Por otro lado, definamos un adversario que responde a las comparaciones solicitadas por el algoritmo según el análisis de las siguientes cantidades:
+    \begin{itemize}
+        \item $a$: número de elementos nunca comparados
+        \item $b$: número de elementos comparados, a los cuales se les asignó un valor mayor a $m$.
+        \item $c$: número de elementos comparados, a los cuales se les asignó un valor mayor a $m$.
+    \end{itemize}
+    El adversario entonces, va asignando valores a los elementos a medida que el algoritmo le va preguntando comparaciones según la siguiente tabla.\\
+    \begin{center}
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+        & $a$ & $b$ & $c$ \\
+    \hline
+    $a$ & $(a-2,b+1,c+1)$ & $(a-1,b,c+1)$ & $(a-1,b+1,c)$ \\
+    \hline
+    $b$ & & $(a,b,c)$ & $(a,b,c)$ \\
+    \hline
+    $c$ & & & $(a,b,c)$ \\
+    \hline
+    \end{tabular}
+    \end{center}
+    Es decir, cuando se quiere comparar un elemento nunca antes comparado:
+    \begin{itemize}
+        \item Con otro nunca antes comparados, uno de ellos se hace mayor y otro menor que la mediana.
+        \item Con uno mayor que la mediana, este se hace menor.
+        \item Con uno menor que la mediana, este se hace mayor.
+    \end{itemize}
+    De este modo el adversario puede responder consistentemente a las comparaciones excepto cuando $b$ (o $c$) alcanza $\frac{n-1}{2}$ pues en tal caso el adversario no puede seguir asignando a los elementos, valores mayores (menores) a la mediana. En este caso el adversario simplemente le asigna a todos los elementos restantes valores menores (mayores) a la mediana y responde según ellos.\\
+    De cualquier modo, el algoritmo necesitará hacer al menos $\frac{n-1}{2}$ comparaciones del tipo de la primera fila de la tabla, todas las cuales son no cruciales.
+\end{enumerate}
+\problem Tendremos nodos consecutivos en un bloque de memoria externa y además el último nodo de un bloque será el anterior del primero de su bloque consecutivo.\\
+Mantendremos el siguiente invariante:
+\begin{displayquote}
+Hay más de $\frac{2}{3}B$ elementos en cada par de bloques consecutivos.
+\end{displayquote}
+Cada vez que el invariante sea roto lo \textbf{reparamos} haciendo \textit{merge} del par de bloques que lo rompen.\\
+De este modo las operaciones nos quedan como sigue:
+\begin{enumerate}
+    \item \textbf{Inserción}: Simplemente vamos al bloque correspondiente y lo ponemos ahí a costo $\mathcal{O}(1)$. En caso que el bloque donde queremos ponerlo este lleno, revisamos si alguno de sus hermanos tiene espacio disponible, si es así hacemos un \textit{shift} de la lista hacia ese hermano a costo $\mathcal{O}(1)$. En caso que los tres bloques estén llenos hacemos \textit{split} del bloque de inserción en $2$ bloques ocupados hasta $\frac{B}{2}$ a costo $\mathcal{O}(1)$.
+    \item \textbf{Eliminación}: Vamos al bloque y eliminamos el nodo correspondiente, en el caso que rompamos el invariantes lo \textbf{reparamos}.
+    \item \textbf{Concatenación}: Asociamos el último bloque de una de las listas con el primero de la otra, en el caso que el par \textit{primero/último} rompa el invariante lo \textbf{reparamos}.
+    \item \textbf{Búsqueda}: Hacemos una búsqueda secuencial, que en el peor caso nos requerirá buscar en todos los bloques de la lista. Dado el invariante el número de bloques de la lista será siempre $\le N/(B/3) = \mathcal{O}(n)$
+\end{enumerate}
+\problem Si $s$ es el vértice de origen de BFS, definimos $FRONT(t)$ como el conjunto de los vértices que están a distancia $t$ de $s$ en el grafo.\\
+
+En BFS en memoria principal vamos obteniendo $FRONT(t)$ a partir de los vecinos $FRONT(t-1)$ que no han sido marcados como visitados. El trasladar esta idea a memoria secundaria resulta en un algoritmo con $\mathcal{O}(n+e)$ llamadas I/O.\\
+
+
+\paragraph{Idea.}
+\idea Los vértices de $FRONT(t)$ son vecinos de aquellos en $FRONT(t-1)$, pero que no están en $FRONT(t-1)$ ni en $FRONT(t-2)$. Esto pues, para saber si un vecino de $FRONT(t-1)$ ha sido visitado solo basta mirar que no se encuentre en $FRONT(t-1)\cup FRONT(t-2)$ , pues, por definición, los vecinos de $FRONT(t-1)$ no pueden estar, por ejemplo, en $FRONT(t-3)$.\\
+
+El siguiente pseudocódigo ejecuta BFS con esta implementando la idea anterior.
+\begin{algorithm}
+Crear Lista Enlazada $U \gets (1\to 2\to \ldots \to n)$\\
+$FRONT(-2)\gets FRONT(-1) \gets \emptyset$\\
+$t\gets 0$\\
+\While{$FRONT(t-1) \not = \emptyset\ \lor\ U \not = \emptyset$}{
+    \If{$FRONT(t-1) == \emptyset$}{
+        $FRONT(t)\gets \{U.removeFirst\}$
+    }\Else{
+        $A(t)\gets Vecinos(FRONT(t-1))$\\
+        $A(t).removeDuplicates$\\
+        $FRONT(t)\gets A(t)\setminus (FRONT(t-1)\cup FRONT(t-2))$
+    }\For{$v\in FRONT(t)$}{
+        $U.remove(v)$
+    }
+    $++t$
+}
+\end{algorithm}\\
+
+Comentarios importantes:
+\begin{itemize}
+    \item Paso 1 : Creación de la lista a costo $\mathcal{O}(n/B)$
+    \item Paso 4 : El BFS continúa mientras se no se haya terminado de recorrer una componente conexa o mientras hayan componentes conexas por recorrer
+    \item Pasos 5-6: En caso de visitar una nueva componente conexa se establece un origen de los posibles que quedan en $U$
+    \item Paso 9: $Vecinos$ une las listas de adyacencia de los vértices a costo $\mathcal{O}(|FRONT(t-1)| + |\mathcal{N}(FRONT(t-1))|/B)$ y luego de todas las iteraciones a costo total $\mathcal{O}(n + e/B)$
+    \item Paso 10: Esto lo podemos hacer ordenando $A(t)$ y luego haciendo un escaneo sobre la lista eliminando los duplicados todo esto a costo $\mathcal{O}(|A(t)|/B\log_m |A(t)|/B)$ y luego de todas las iteraciones podemos acotar el costo total por $\mathcal{O}(\frac{e}{B}\log_{m} \frac{e}{B})$
+    \item Paso 11: Esto lo podemos hacer con un escaneo paralelo de las tres listas a costo total (de todas las iteraciones) $\mathcal{O}(e/B)$
+    \item Paso 13: Este loop incurre en un costo total de $\mathcal{O}(n)$
+\end{itemize}
+Con lo que el costo del algoritmo es $\mathcal{O}(n + \frac{e}{B}\log_{m} \frac{e}{B})$
+\end{problems}
+\end{document}
+

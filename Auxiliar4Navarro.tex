@@ -1,0 +1,90 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Auxiliar 4 - ``Análisis Amortizado"}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+\begin{center}
+11 de Septiembre del 2017
+\end{center}
+
+
+\vspace{-1ex}
+
+\cfoot{``Your goal should be to pay off your credit card bills in full at the end of each month and set aside money toward your emergency savings''\\Suze Orman}
+
+\begin{problems}
+\problem {\large\underline{\textbf{Pila con MULTIPOP}}}\\
+Considere una implementación de pila con sus operaciones de \texttt{POP} y \texttt{PUSH} a costo $\mathcal{O}(1)$. Además considere la operación \texttt{MULTIPOP(k)} que remueve los primeros $k$ elementos del tope de la pila y retorna el último de ellos, si la pila tiene $n<k$ elementos entonces se queda vacía. Esta operación tiene costo $\mathcal{O}(\min(n, k))$.\\
+Muestre que el costo amortizado de las operaciones es $\mathcal{O}(1)$ (partiendo de pila vacía).
+\problem {\large\underline{\textbf{Cola con 2 Pilas}}}\\
+Con 2 Pilas implemente una Cola costos amortizados de \texttt{enqueue} y \texttt{dequeue} son de $\mathcal{O}(1)$.
+\problem {\large\underline{\textbf{Dinamizando la Búsqueda Binaria}}}\\
+Hacer \textit{búsqueda binaria} sobre un arreglo ordenado toma tiempo \textit{logarítmico} en el tamaño del arreglo, sin embargo la inserción de un nuevo elemento es \textit{lineal} pues se deben ``empujar'' elementos para mantener el arreglo ordenado.
+\begin{enumerate}[a)]
+    \item Diseñe una estructura de datos que permita hacer búsqueda en $\mathcal{O}\left((\log n)^2\right)$ e inserción en $\mathcal{O}(\log n)$ amortizado.
+    \item Explique como se podría implementar la eliminación de elementos a costo $\mathcal{O}\left(n\right)$. Muestre además que con esto se pierde el $\mathcal{O}(\log n)$ amortizado de la inserción.
+\end{enumerate}
+\problem {\large\underline{\textbf{Árboles $\alpha$-balanceados}}}\\
+Para un valor de $\alpha \in [0.5, 1)$, decimos que un nodo $x$ de un árbol binario es $\alpha$-balanceado si cumple que:
+\begin{align*}
+    |left(x)| &\le \alpha |x|\quad\\
+    & \land\\
+    |right(x)| &\le \alpha |x|&
+\end{align*}
+donde $|x|$ es el número de nodos del árbol con raíz en $x$ y $right(x), left(x)$ son los nodos a la derecha e izquierda de $x$ en el árbol. Decimos que un árbol binario de búsqueda es $\alpha$-balanceado si todos sus nodos son $\alpha$-balanceado.\\
+Para $\alpha>\frac{1}{2}$ muestre como implementar un árbol binario de búsqueda $A$ $\alpha$-balanceado cuyos costos de inserción y eliminación sean amortizados \textit{logarítmicos}.\\
+
+\textbf{HINTS}: Sea lazy, estudie las alturas de estos árboles, estudie los $1/2$-balanceados y utilice el potencial $\phi = \frac{1}{2\alpha-1}\sum_{x\in A; \delta(x) > 1} \delta(x)$, con $\delta(x) = ||right(x)|-|left(x)||$
+\end{problems}
+\end{document}

@@ -1,0 +1,176 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Auxiliar 2 - ``Cotas Inferiores y Memoria Externa"}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+\begin{center}
+21 de Agosto del 2017
+\end{center}
+
+
+\vspace{-1ex}
+
+\cfoot{``No man has a good enough memory to be a successful liar''\\Abraham Lincoln}
+
+\begin{problems}
+\section*{Cotas inferiores}
+\problem Considere el problema de mezclar 2 listas ordenadas de igual tamaño, $X[1,\ldots n], Y[1,\ldots n]$ de modo que el resultado final este también ordenado. En este problema estaremos interesados en las preguntas del estilo: ¿$X[i]<Y[j]$?
+\begin{enumerate}[a)]
+    \item Muestre que el problema es $\mathcal{O}(2n-1)$
+    \item Muestre, usando árbol de decisión, que el problema es $\Omega \left(2n-\frac{1}{2}\log n\right)$
+    \item Muestre, usando adversario, que el problema no puede ser resuelto en menos de $2n-1$ comparaciones
+\end{enumerate}
+\section*{Memoria Externa}
+\problem {\large\underline{\textbf{Mayoría}}}\\
+Considere una lista $L$ de $N \gg M$ elementos en memoria externa. Diseñe un algoritmo eficiente para encontrar un elemento que tenga la mayoría absoluta (es decir, que aparezca más de $N/2$ veces), y reportar su frecuencia. Si no existe tal elemento debe reportarse \texttt{no}.
+\problem {\large\underline{\textbf{Skyline}}}\\
+Se nos entrega un conjunto $P$ de $N$ puntos en el plano en \textit{posición general}; es decir, ningún par de puntos comparte el mismo valor en alguna de sus coordenadas. Considere que $N \gg M$. Dado un punto $p$ en el plano , llamaremos $p[i]$ a su $i$-ésima coordenada. Un punto $p_{1}$ domina a otro punto $p_{2}$ (denotado como $p_{1} \prec p_{2}$) si se cumple $p_{1}[i] < p_{2}[i], \forall i = 1, 2$.\\
+Se nos pide calcular el \textit{skyline} de $P$ , denotado como $SKY (P)$, que incluye todos los puntos de $P$ que no son dominados por ningún otro:
+\begin{equation*}
+SKY(P) = \{p \in P | \not \exists p' \in P, p' \prec p\}    
+\end{equation*}
+\begin{enumerate}[a)]
+\item Resuelva el problema usando $\mathcal{O}(n \log_{m} n)$ operaciones de I/O.
+\item \textbf{Propuesto:} Resuelva el problema, ahora para puntos en el espacio. Llegue a la misma cota para la cantidad de operaciones de I/O que en el caso anterior.
+\end{enumerate}
+\end{problems}
+\newpage
+\begin{center}
+{\huge \underline{Soluciones}}
+\end{center}
+\begin{problems}
+\problem 
+\begin{teo}\jewel\\
+Todo árbol binario con $n$ hojas tiene altura $h \ge \log_{2} n$
+\end{teo}
+\begin{enumerate}[a)]
+    \item El algoritmo de ``merge'' ocupado en ``MergeSort'' realiza en el peor caso $2n-1$ comparaciones (una por cada elemento que pone en la lista de los ordenados). \flash
+    
+    \item En total tenemos $2n$ elementos, pero no todas las $(2n)!$ permutaciones son posibles outputs del algoritmo (pues deben respetar que los órdenes en las listas originales se mantengan).\\    
+    
+    ¿Cuántos outputs posibles hay entonces? \thinking \\
+    Para contarlos notemos que basta elegir las posiciones en las cuales se encuentran los elementos de una de las listas (si ya están escogidos el resto tiene su posición determinada) lo que se puede hacer de $\binom{2n}{n}$ formas distintas, siendo por tanto este el número de outputs posibles.\\    
+    Si ponemos estos outputs en las hojas de un árbol de decisión, tenemos que por el teorema \jewel su altura será $\ge \log \binom{2n}{n}$.\\    
+    
+    Usando ahora la aproximación de Stirling ($n! \sim \sqrt{2\pi n} \left(\frac{n}{e}\right)^n$) llegamos a que $\log \binom{2n}{n} \sim 2n - \frac{1}{2}\log n - \frac{1}{2}\log \pi$, luego el problema es $\Omega( 2n - \frac{1}{2}\log n)$
+    \item Por $\Rightarrow \Leftarrow$ existe un algoritmo $A$ que realiza $< 2n-1$  comparaciones.\\
+    
+    El adversario \demon  construye el siguiente input:
+    \begin{itemize}
+        \item $X \rightarrow$ lista cuyos elementos son $x_{i} = 2i-1$
+        \item $Y \rightarrow$ lista cuyos elementos son $y_{i} = 2i$
+    \end{itemize}
+    
+    Si ejecutamos el algoritmo $A$ sobre el input anterior encontraremos un $i^*$ tal que $x_{i^*}$ no fue comparado con ambos $y_{i^*-1}$ e $y_{i^*}$ (si todos los $i$ lo cumplieran se habrían hecho $2n-1$ comparaciones (al menos)).\\
+    Supongamos sin mucha pérdida de generalidad que solo no fue comparado con $y_{i^*}$, entonces en el siguiente input:
+    \begin{itemize}
+        \item $X \rightarrow$ lista cuyos elementos son $x_{i} = 2i-1$, excepto $x_{i^*} = 2i^*$
+        \item $Y \rightarrow$ lista cuyos elementos son $y_{i} = 2i$, excepto $y_{i^*} = 2i^*-1$
+    \end{itemize}
+    El algoritmo recibe exactamente las mismas respuestas a las mismas preguntas que se hizo sobre el input anterior (pues el orden relativo de los elementos no se altera y no se compara $x_{i^*}$ con $y_{i^*}$). Por lo tanto tengo 2 inputs válidos de listas para los cuales $A$ retorna el mismo resultado, pero no lo es, pues en el primero $x_{i^*} < y_{i^*}$ y en el segundo $x_{i^*} < y_{i^*}$ lo que es una $\Rightarrow \Leftarrow$.
+\end{enumerate}
+\problem {\large\underline{\textbf{Mayoría}}}\\
+El siguiente algoritmo que escanea el input 2 veces por bloques (por lo que cuesta $\mathcal{O}(n)$ operaciones de I/O) resuelve el problema:\\
+
+\begin{algorithm}
+$i\gets 0$\\
+\For{$x\in L$} {
+    \If {$i==0$} { 
+        $m\gets x$\\
+        $i\gets 1$\\        
+    }\Else {
+        \If {$x==m$} {
+                $++i$\\
+        }\Else {
+            $--i$\\
+        }
+    } 
+}
+\end{algorithm}
+\begin{algorithm}
+$j\gets 0$\\
+\For{$x\in L$} {
+    \If {$x==m$} {
+        $++j$
+    }
+}
+\If {$j>N/2$} {
+    \Return $m,j$
+}\Else {            
+    \Return $no$
+}
+\end{algorithm}
+\magic \magic. Veamos que el primer ciclo presenta a $m$ como un candidato a ser mayoría absoluta y el segundo ciclo verifica que este elemento realmente lo sea.\\
+Si no existe mayoría absoluta el algoritmo responde correctamente $no$ pues el segundo ciclo desecha el candidato $m$ presentado por el primero.\\
+Si existe un elemento $K$ que es mayoría absoluta, en este caso imaginemos un índice $l$ que no es parte del algoritmo pero se actualiza a medida que este avanza.$l$ aumenta en 1 si el elemento escaneado es igual a $K$ y disminuye en 1 si es distinto a $K$. Observemos que cuando $l>0$ se cumple que el $i$ del algoritmo es $>0$ y el $m=K$ (pues significa que se han visto más $K$s que otro símbolo). Finalmente cuando se terminan las iteraciones $l>0$, pues $K$ es mayoría absoluta, y por lo tanto $m=K$, el algoritmo lo postula como candidato y luego lo corrobora.
+\problem {\large\underline{\textbf{Skyline}}}\\
+\begin{enumerate}[a)]
+    \item El siguiente algoritmo computa el $SKY$:\\
+    \begin{algorithm}[h!]
+    $SKY \gets \emptyset$\\
+     $y_{min} \gets \infty$\\
+    $Sort_{x}(P)$\\
+    \For{$i = 1\ldots N$} {
+        $(x,y) \gets p_{i}$\\
+        \If{$y<y_{min}$} {
+            $y_{min} \gets y$\\
+            $SKY.add(p_{i})$\\
+        }
+    }
+    \end{algorithm}
+    
+    El mayor costo del algoritmo se realiza cuando se ordena por la coordenada $x$, por lo que el número de llamadas de I/O es $\mathcal{O}(n\log_{m}n)$. Veamos que cuando un punto es dominado por otro $p$ se cumplirá que no es agregado a $SKY$, pues antes de analizarlo (dado que están ordenados por $x$) se debió haber seteado $y_{min}$ como el $y$ del punto o como algo menor que esto, por lo que no cumple la condición del \textbf{if}. Por otro lado, si el punto no es dominado, ningún punto menor que el en la coordenada $x$ debería ser menor también en la coordenada $y$, por lo que a l ser procesado cumple la condición del \textbf{if} y es agregado al $SKY$.
+\end{enumerate}
+\end{problems}
+\end{document}
+
