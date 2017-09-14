@@ -87,4 +87,100 @@ Para $\alpha>\frac{1}{2}$ muestre como implementar un árbol binario de búsqued
 
 \textbf{HINTS}: Sea lazy, estudie las alturas de estos árboles, estudie los $1/2$-balanceados y utilice el potencial $\phi = \frac{1}{2\alpha-1}\sum_{x\in A; \delta(x) > 1} \delta(x)$, con $\delta(x) = ||right(x)|-|left(x)||$
 \end{problems}
+\newpage
+\begin{center}
+{\huge \underline{Soluciones}}
+\end{center}
+\begin{problems}
+\problem Posible implementación de \texttt{MULTIPOP(k)}.
+\begin{algorithm}
+\SetKwProg{Fn}{Funcion}{}{}
+\Fn{MULTIPOP (k)}{
+\For{$i \gets 1\ldots k-1$}{
+    $x\gets$ POP()\\
+    \If{estaVacia()}{
+        \Return $x$
+    }
+    
+}\Return POP()}
+\end{algorithm}
+\\Notar que este procedimiento tiene complejidad $\mathcal{O}(\min(n,k))$ y que esto en el peor caso es  $\mathcal{O}(n)$. Veremos a continuación que alcanza complejidad amortizada $\mathcal{O}(1)$, en un conjunto de operaciones \texttt{POP}, \texttt{PUSH} y \texttt{MULTIPOP(k)}.
+\paragraph{Análisis completo.} Supongamos que se hicieron $r$ operaciones de \texttt{MULTIPOP} cada una con costo proporcional a $k_{1}, k_{2}, \ldots, k_{r}$ respectivamente. Para poder haber hecho estas operaciones tienen que haber ocurrido al menos (en algún momento) $\sum_{i=1}^r k_{i}$ \texttt{PUSH} (para poder hacer esos \texttt{MULTIPOP}. Esto significa que en una secuencia de operaciones:
+\begin{align*}
+    C_{total} &= C_{PUSHs} + C_{POPs} + C_{MULTIPOPs} \\
+    &\le 2C_{PUSHs} + C_{POPs}\\
+    &\le 3|numero\ de\ operaciones|
+\end{align*}
+y por lo tanto el costo amortizado de las operaciones es $3$.
+
+\paragraph{Contabilidad de Costos.} Si le cobramos al \texttt{PUSH} 1 por la inserción en el la pila del elemento y 1 por su posible posterior salida de la pila, las operaciones de \texttt{POP} y \texttt{MULTIPOP(k)} quedan de costo cero, teniendo $\mathcal{O}(1)$ por operción.
+
+\paragraph{Potencial.}
+Si definimos el potencial como $\phi = |Pila|$, tenemos que $\phi_0 = 0$ y además $\phi \ge 0$, entonces $\phi_i\ge \phi_0$, cumpliéndose la condición necesaria para ser un potencial válido.\\
+Usando este potencial, el costo amortizado de \texttt{PUSH} queda en $\hat{c} = 1 + 1 = 2$, el de \texttt{POP} en $\hat{c} = 1 - 1 = 0$ y el de \texttt{MULTIPOP(k)} en $\hat{c} = \min(n,k) - \min(n,k) = 0$.
+\problem Tendremos una pila de $entrada$ en donde \texttt{pusheamos} los elementos cuando ingresan a la cola, y además una pila de $salida$ de donde se sacan los elementos de la cola, en caso que esta última no tenga elementos se vacía la cola de $entrada$ en la de $salida$.
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.5]{imagenes/dos_pilas}
+\end{figure}
+
+En el caso del \texttt{enqueue} es de costo $\mathcal{O}(1)$, sin embargo el \texttt{dequeue} es de costo $\mathcal{O}(n)$ pues puede potencialmente ocurrir un vaciado. Veremos a continuación que el costo amortizado de estas operaciones (partiendo de una cola vacía) es $\mathcal{O}(1)$.
+
+\paragraph{Contabilidad de Costos.} Al ser encolado, un elemento paga por la operación de \texttt{PUSH} en la pila de $entrada$ y también paga por su posible posterior traslado de pila (un \texttt{PUSH} y un \texttt{POP}) por lo que su costo amortizado es de $\hat{c} = 3$. Por lo anterior, el costo de \texttt{dequeue} solo es el de hacer \texttt{POP} del elemento de la cola de $salida$ (pues si hay vaciado, el costo de traslado de pila ya fue pagado por el \texttt{enqueue}).
+
+\paragraph{Potencial.} 
+Si definimos el potencial como $2|Pila_{entrada}|$, entonces:
+\begin{itemize}
+    \item El \texttt{enqueue}, $\hat{c} = 1 + 2 = 3$
+    \item El \texttt{dequeue},
+    \begin{itemize}
+        \item Sin vaciado, $\hat{c} = 1 - 2\cdot 0 = 1$
+        \item Con vaciado, $\hat{c} = 1 + 2|Pila_{entrada}| - 2|Pila_{entrada}| = 1$
+    \end{itemize} 
+\end{itemize}
+\problem
+\begin{enumerate}[a)]
+    \item Tendremos arreglos $A_{0}, A_{1}, A_{2}, \ldots, A_{\lceil \log n \rceil-1}$  de tamaños $2^0, 2^1, 2^2, \ldots, 2^{\lceil \log n \rceil-1}$ respectivamente, cada uno de los cuales estará o bien lleno de elementos del conjunto o bien vacío. Además estos arreglos estarán ordenados internamente, pero no existirá alguna relación de orden entre ellos (necesariamente). Si $a_{k}a_{k-1}\ldots a_{1}a_{0}$ es la representación binaria de $n$, los arreglos que estarán llenos serán aquellos $A_i$ que tengan $a_{i}$ en 1 y el resto estará vacío. Notar que esto asegura que tenemos los $n$ elementos en la estructura.\\
+    
+    Para buscar un elemento hacemos una búsqueda binaria en cada uno de estos arreglos. Como son $\lceil \log n \rceil$ de ellos, y cada uno es de tamaño $\le n$ esta búsqueda nos tomará $\mathcal{O}((\log n)^2)$.\\
+    
+    Para insertar un elemento buscamos el primer $a_{i} = 0$ y hacemos la unión de los arreglos $A_{<i}$ con el elemento a insertar, en el arreglo $A_{i}$, lo que se puede hacer a costo $\mathcal{O}(2^i)$ que en el peor caso puede ser $\mathcal{O}(n)$.
+    
+    \paragraph{Análisis Completo.} Veamos que para una secuencia de $m$ inserciones, el arreglo $A_i$ será unido $\frac{m}{2^{i+1}}$ veces y por lo tanto el costo agregado de las uniones será 
+    \begin{align*}
+        \sum_{i=0}^{\lceil \log n \rceil - 1} \frac{m}{2^{i+1}} \cdot 2^i = \lceil \log n \rceil \frac{m}{2}
+     \end{align*}
+    y por lo tanto el costo amortizado será $\mathcal{O}(\log n)$.
+    \item Para eliminar, buscamos el primer $a_{i} = 1$. Luego buscamos el elemento que queremos eliminar (supongamos que no está en $A_{i}$) y lo intercambiamos con alguno de $A_i$. Finalmente dividimos $A_i$ en $A_0, A_1, \ldots, A_{i-1}$ a costo $\mathcal{O}(2^i)$ potencialmente $\mathcal{O}(n)$. Si consideramos esta eliminación y la inserción antes descrita obtenemos el siguiente conjunto de operaciones:
+    \begin{enumerate}[1.]
+        \item Insertar elementos hasta que tengamos todo en $|A_i| = 2^i = n$
+        \item Eliminar un elemento a costo $n$
+        \item Insertar un elemento a costo $n$
+        \item Repetir 2,3 tanto como sea necesario para que el costo total sea $\sim n^2$
+    \end{enumerate}
+    y de este modo las operaciones no pueden tener costo $o(n)$ real y tampoco amortizado.
+\end{enumerate}
+\problem 
+\paragraph{Lazy} Insertaremos/Eliminaremos como en un Árbol de Búsqueda Binaria(ABB), y luego convertimos el nodo más alto que no es $\alpha$-balanceado en $1/2$-balanceado (el subárbol completo). Notar que ser $\beta$-balanceado implica ser $\alpha$-balanceado cuando $\beta\le\alpha$, por lo que la inserción anterior es correcta.
+\paragraph{Estudio de la altura de $\alpha$-balanceado} Notemos que la altura del árbol con $n$ nodos, en el peor caso, será uno más que la altura de un árbol de $\alpha n$ nodos (pues esta es la máxima cantidad de nodos que puede tener alguno de los subárboles hijos). Finalmente resolviendo la ecuación de recurrencia ($h(n) = 1 + h(\alpha n)$) obtenemos que $h(n) \in \mathcal{O}(\log_\alpha n) = \mathcal{O}(\log n)$. Por lo que la búsqueda en estos árboles es logarítmica (y la inserción y eliminación sin reconstrucción).
+
+\paragraph{Estudio de los $1/2$-balanceados} Para construir un árbol $1/2$-balanceado a partir de un ABB cualquiera con raíz $x$ podemos hacer un recorrido \textit{inorden} para obtener los elementos ordenados , luego recursivamente ir eligiendo la mediana del arreglo como raíz (en $\mathcal{O}(|x|)$). El resultado de lo descrito anteriormente es un árbol que cumple que para todo nodo $x$, $\delta(x)\le 1$.
+
+\paragraph{Proposición}.
+\\Un Árbol es $1/2$-balanceado sii todos los nodos del Árbol cumplen con $\delta(x)\le 1$\\
+
+\underline{$\Rightarrow$}\\
+Por contradicción, existe un nodo $x$ tal que $\delta(x)>1$. Supongamos sin pérdida de generalidad que $|left(x)| = |right(x)| - 2$, por lo tanto se cumple que $|right(x)| - 2 + |right(x)| = |x|-1$ y por lo tanto $2|right(x)| = |x|+1$, pero por ser $1/2$-balanceado se cumple que $|x|+1\ge 2|right(x)| + 1$ lo que es una contradicción.\\
+
+\underline{$\Leftarrow$}\\
+En caso que $\delta(x) = 0$ se cumple $|right(x)| = |left(x)| = \frac{|x|-1}{2} \le \frac{|x|}{2}$. Si en cambio $\delta(x) = 1$, sin pérdida de generalidad $|right(x)| = |left(x)| + 1$ que es igual a $|x| - |right(x)|$ y por lo tanto $|left(x)| < |right(x)| = \frac{|x|}{2}$
+\end{problems}
+ 
+ \paragraph{Análisis del potencial.}
+ Con esto, la reconstrucción propuesta más arriba genera un árbol $1/2$-balanceado. Además, el potencial de un árbol $1/2$-balanceado es 0.\\
+ 
+ La inserción y eliminación sin reconstrucción cambian $\delta(x)$ solo de los nodos en el camino de inserción y eliminación a lo más en 1 por cada nodo y por lo tanto el cambio de potencial es $\mathcal{O}(log n)$ obteniendo un costo amortizado de $\mathcal{O}(log n)$.\\
+ 
+ Por otro lado, supongamos una reconstrucción sobre $x$ que tiene costo  $|x|$, el potencial luego de la reconstrucción es 0 (pues queda $1/2$-balanceado) y antes de la reconstrucción se cumple $\delta(x) = ||right(x)|-|left(x)|| \ge \alpha|x| - (|x| - \alpha |x|) = (2\alpha - 1) |x|$ y por lo tanto el cambio de potencial es mayor o igual a $|x|$ dejando el costo de la reconstrucción amortizado  $\mathcal{O}(1)$.
+ 
 \end{document}
