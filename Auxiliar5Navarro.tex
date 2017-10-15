@@ -1,0 +1,159 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Auxiliar 5 - ``Dominios Discretos y Finitos"}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+\begin{center}
+02 de Octubre del 2017
+\end{center}
+
+
+\vspace{-1ex}
+
+\cfoot{``... supporting the desired data operations as efficiently as possible while increasing the space as little as possible ...''\\Gonzalo Navarro}
+
+\begin{problems}
+\problem {\large\underline{\textbf{Ordenando Strings}}}\\
+Tenemos los \texttt{Strings} $w_{1}, w_{2},\ldots w_{n} \in \Sigma$, con $\sigma = |\Sigma| \in \mathcal{O}(n)$ y queremos ordenarlos alfabéticamente. Además, el largo total de los \texttt{Strings} es $N = \sum |w_{i}|$.\\ Diseñe algoritmos de tiempo $\mathcal{O}(N)$ en los casos:
+\begin{enumerate}[a)]
+    \item Todas las cadenas del mismo largo.
+    \item Cadenas de largo variable.
+\end{enumerate}
+
+\problem {\large\underline{\textbf{Arreglo de Sufijos}}}\\
+Si $T=t_{1}t_{2}\ldots t_{n}$ es un texto de largo $n$, definimos su $i$-ésimo sufijo como $T_{i} = t_{i}t_{i+1}\ldots t_{n}$.\\
+Un arreglo de sufijos de un texto $T$, $SA_T$, es un arreglo que cumple:
+\begin{align*}
+    SA_T[i] = k \Leftrightarrow T_k\text{ es el i-ésimo en orden lexicográfico entre los sufijos de } T
+\end{align*}
+Diseñe un algoritmo que encuentre el arreglo de sufijos de $T$ en tiempo $\mathcal{O}(n\log{n})$.
+
+\problem {\large\underline{\textbf{Rank}}}\\
+Sea $B$ una secuencia de bits de largo $n$. Se define $RANK(B, i)$ como el número de bits en $1$ en $B[1,i]$, es decir:
+\begin{align*}
+    RANK(B, i) &= \sum_{0<j\le i} B[j],\ 1\le i \le n
+\end{align*}
+\begin{enumerate}[a)]
+    \item Construya una estructura que permita calcular $RANK(B,i)$ en tiempo constante y utilice $2n + o(n)$ \textbf{bits} de espacio.
+    \item Resuelva el mismo problema, esta vez utilizando $o(n)$ \textbf{bits} de espacio.
+\end{enumerate}
+
+\end{problems}
+
+\newpage
+\begin{center}
+{\huge \underline{Soluciones}}
+\end{center}
+\begin{problems}
+\item
+\begin{enumerate}[a)]
+    \item Si adaptamos CountingSort para ordenar \texttt{Strings} de una letra su complejidad será $\mathcal{O}(n + \sigma)$, y por lo tanto hacer un RadixSort sobre estos \textit{Strings} tiene costo $\mathcal{O}\left(\frac{N}{n} (n + \sigma)\right) = \mathcal{O}(N)$.\\
+    
+    \item Si los \texttt{Strings} tienen diferente largo no podemos usar el RadixSort de la parte anterior pues este ordena desde el dígito menos significativo, a si es que por ejemplo $ba$ quedaría antes de $a$ al ordenar ascendentemente.
+    
+    Otra opción es usar \texttt{padding} en las cadenas de largo menor a la más larga, de modo que tengamos $n$ cadenas de largo $\max{|w_{i}|}$. Sin embargo, este procedimiento podría llegar a ser $\mathcal{O}(N^2)$ (si por ejemplo tenemos 1 cadena larga y las demás cortas). \crying\\
+    
+    La solución viene dada por procesar los \texttt{Strings} desde el dígito más significativo y hacer $\le \sigma$ llamados recursivos para ordenar por el siguiente dígito. Este algoritmo es llamado MSD-RadixSort y se presenta a continuación:
+    
+    \begin{algorithm}[H]
+        \SetAlgoLined
+        //$W$ es el arreglo de Strings y $d$ el dígito por el que se está ordenando\\
+        //Asumimos también que CountingSort además retorna el arreglo que contiene las posiciones iniciales de cada letra\\
+        \SetKwProg{Fn}{Funcion}{}{}
+        \Fn{sort (W, d)}{
+            \If{$|W| \le 1$ o $last(W[1]) = -1$}{
+                \Return
+            }
+            
+            $count \gets$ CountingSort(W, d)\\
+            \For{$r \gets 1 \ldots \sigma$}{
+                sort(W[count[r]: count[r+1]-1], d+1)
+            }
+        }
+    \end{algorithm}
+    Por razones prácticas de implementación le agregaremos un $-1$ al final de las cadenas, lo que agrega solo $n$ al tamaño del input.\\
+    Finalmente considerando que el costo amortizado por letra para CountingSort es de $\mathcal{O}(1)$ y notando que en el \texttt{peor} caso MSD-RadixSort procesa todas las letras del input con CountingSort, el costo total es $\mathcal{O}(N)$.
+\end{enumerate}
+\item Un primer intento es ordenar con cualquier algoritmo óptimo basado en comparaciones, lo que haría $\mathcal{O}(n\log{n})$ comparaciones. Sin embargo, estas comparaciones (de cadenas) cuestan $\mathcal{O}(n)$ comparaciones de letras, por lo que la complejidad de esta solución es $\mathcal{O}(n^2\log{n})$. Otra forma sería usar RadixSort de la pregunta anterior para ordenar, que tomaría $\mathcal{O}(N) = \mathcal{O}(n^2)$.\\
+Veremos a continuación una forma de realizar esto en $\mathcal{O}(n\log{n})$ gracias a Manber \& Myers.\\
+
+Este algoritmo va ordenando prefijos de los sufijos del texto, en fases, cuyos largos crecen exponencialmente. El análisis es simple, cada ordenación de prefijos de largo $2^i$ (dado que ya se ordenaron los de largo $2^{i-1}$) se hace en $\mathcal{O}(n)$, por lo que el costo total del algoritmo es de $\mathcal{O}(n\log{n})$. La observación clave que permite hacer saltos exponenciales en tiempo lineal es que ``la parte que aún me falta comparar de los sufijos corresponden a prefijos de otras sufijos cuyo orden relativo puedo inferir a partir de lo que ya tengo ordenado''.\\
+
+Una descripción del algoritmo (sin muchos detalles de implementación) es la siguiente:\\
+\begin{algorithm}[H]
+        \SetAlgoLined
+        Ordenar los sufijos con CountingSort por su letra más significativa.\\
+        \For{$i\gets 1\ldots \log{n}$}{
+            RadixSort(i)
+        }
+\end{algorithm}
+Donde RadixSort(i) presupone que los sufijos están ordenados según los prefijos de tamaño $2^{i-1}$ y entrega como resultado el $SA$ ordenado según los prefijos de tamaño $2^i$. Para realizar esto RadixSort(i) utiliza el inverso del $SA$ ya construido, lo que le indica el orden relativo de las primeras $2^{i-1}$ letras y también el orden relativo de las siguientes $2^{i}$ letras. De hecho $SA^{-1}$ entrega un número $\in [n]$, por lo que puedo usar estos dos ``caracteres'' para hacer un RadixSort sobre ellos y tener el $SA$ ordenado por las primeras $2^{i}$ letras en $\mathcal{O}(n)$. \happy
+\item 
+\begin{enumerate}[a)]
+\item Una primera idea consiste en tener un arreglo de $n$ elementos que en la posición $i$ contenga el valor de $RANK(B,i)$, sin embargo, como el $RANK$ puede llegar hasta $n$ necesito $\mathcal{O}(\log n)$ bits para representar uno de estos valores y en total $\mathcal{O}(n\log n)$. \crying\\
+
+\idea\\
+Dividir $B$ en partes de tamaño $\frac{\lceil \log n \rceil}{2}$ y guardar el $RANK$ de los últimos elementos de cada una de las partes. Esto toma $\frac{n}{\frac{\lceil \log n \rceil}{2}}\log n = \frac{2n}{\lceil \log n \rceil}\log n \le 2n$ bits de espacio.\\
+Ahora que tengo el $RANK$ cada $\frac{\lceil \log n \rceil}{2}$ solo debo identificar el $RANK$ más cercano y luego calcular el resto en tiempo $\mathcal{O}\left(\frac{\lceil \log n \rceil}{2}\right)$. \\
+\idea\\
+Para reducir la complejidad a $\mathcal{O}(1)$ precalcularemos todos los $RANK$ de todas las secuencias de largo $\frac{\lceil \log n \rceil}{2}$. Es decir, tendremos en una tabla $T[w,r] = RANK(w,r)$ que ocupará espacio $2^{\frac{\lceil \log n \rceil}{2}} \cdot \frac{\lceil \log n \rceil}{2} \cdot \log{\frac{\lceil \log n \rceil}{2}} = \mathcal{O}(\sqrt{n})\cdot \mathcal{O}(\log n) \cdot \mathcal{O}(\log \log n) \in o(n)$ bits.\wedidit  
+\item El problema con la solución anterior es que el arreglo que guarda los $RANK$ de las partes ocupa $\mathcal{O}(n)$ bits de espacio.\\
+\idea\\
+Aumentaremos el tamaño de las partes a $\frac{\log^2 n}{2}$, de este modo solo necesitamos $\frac{n}{\frac{\log^2 n }{2}}\log n = \frac{2n}{\log n } = o(n)$ bits de espacio.\\
+Lamentablemente ya no podemos guardar todos los $RANK$ de todas las secuencias de tamaño $\frac{\log^2 n}{2}$ en espacio $o(n)$. \crying\\
+\idea\\
+Dividimos cada parte en $\log n$ subpartes de tamaño $\frac{\log n}{2}$ cada una y guardamos el $RANK$ del final de cada una, pero relativo a la parte en la cual se encuentra esa subparte. De este modo necesitamos $\log n \cdot \frac{n}{\frac{\log^2 n}{2}} \cdot \log \left(\frac{\log^2 n}{2}\right) \le \frac{4n\log \log n}{\log n} = o(n)$. \wedidit
+\end{enumerate}
+\end{problems}
+\end{document}
