@@ -113,7 +113,7 @@ Para $\alpha>\frac{1}{2}$ muestre como implementar un árbol binario de búsqued
 \end{align*}
 y por lo tanto el costo amortizado de las operaciones es $3$.
 
-\paragraph{Contabilidad de Costos.} Si le cobramos al \texttt{PUSH} 1 por la inserción en el la pila del elemento y 1 por su posible posterior salida de la pila, las operaciones de \texttt{POP} y \texttt{MULTIPOP(k)} quedan de costo cero, teniendo $\mathcal{O}(1)$ por operción.
+\paragraph{Contabilidad de Costos.} Si le cobramos al \texttt{PUSH} 1 por la inserción en el la pila del elemento y 1 por su posible posterior salida de la pila, las operaciones de \texttt{POP} y \texttt{MULTIPOP(k)} quedan de costo cero, teniendo $\mathcal{O}(1)$ por operación.
 
 \paragraph{Potencial.}
 Si definimos el potencial como $\phi = |Pila|$, tenemos que $\phi_0 = 0$ y además $\phi \ge 0$, entonces $\phi_i\ge \phi_0$, cumpliéndose la condición necesaria para ser un potencial válido.\\
@@ -162,7 +162,7 @@ Si definimos el potencial como $2|Pila_{entrada}|$, entonces:
 \end{enumerate}
 \problem 
 \paragraph{Lazy} Insertaremos/Eliminaremos como en un Árbol de Búsqueda Binaria(ABB), y luego convertimos el nodo más alto que no es $\alpha$-balanceado en $1/2$-balanceado (el subárbol completo). Notar que ser $\beta$-balanceado implica ser $\alpha$-balanceado cuando $\beta\le\alpha$, por lo que la inserción anterior es correcta.
-\paragraph{Estudio de la altura de $\alpha$-balanceado} Notemos que la altura del árbol con $n$ nodos, en el peor caso, será uno más que la altura de un árbol de $\alpha n$ nodos (pues esta es la máxima cantidad de nodos que puede tener alguno de los subárboles hijos). Finalmente resolviendo la ecuación de recurrencia ($h(n) = 1 + h(\alpha n)$) obtenemos que $h(n) \in \mathcal{O}(\log_\alpha n) = \mathcal{O}(\log n)$. Por lo que la búsqueda en estos árboles es logarítmica (y la inserción y eliminación sin reconstrucción).
+\paragraph{Estudio de la altura de $\alpha$-balanceado} Notemos que la altura del árbol con $n$ nodos, en el peor caso, será uno más que la altura de un árbol de $\alpha n$ nodos (pues esta es la máxima cantidad de nodos que puede tener alguno de los subárboles hijos). Finalmente resolviendo la ecuación de recurrencia ($h(n) = 1 + h(\alpha n)$) obtenemos que $h(n) \in \mathcal{O}(\log_{1/\alpha} n) = \mathcal{O}(\log n)$. Por lo que la búsqueda en estos árboles es logarítmica (y la inserción y eliminación sin reconstrucción).
 
 \paragraph{Estudio de los $1/2$-balanceados} Para construir un árbol $1/2$-balanceado a partir de un ABB cualquiera con raíz $x$ podemos hacer un recorrido \textit{inorden} para obtener los elementos ordenados , luego recursivamente ir eligiendo la mediana del arreglo como raíz (en $\mathcal{O}(|x|)$). El resultado de lo descrito anteriormente es un árbol que cumple que para todo nodo $x$, $\delta(x)\le 1$.
 

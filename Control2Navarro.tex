@@ -1,0 +1,86 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Soluciones Control 2}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+
+
+\vspace{-1ex}
+
+
+\begin{problems}
+\problem
+\begin{enumerate}[1.]
+    \item Veamos primero que las operaciones descritas mantienen el invariante definido para $M$ (que mantiene los mínimos de izquierda a derecha en la cola, donde los de la izquierda son los más recientemente añadidos a la cola).\\
+    Al hacer el \textit{dequeue} se elimina el elemento de la cola y si coincide con que este elemento es el último que se ve en $M$ también se elimina, por lo que se mantiene el invariante. Al hacer el \textit{enqueue} se pone el elemento al inicio de $M$ (como es el primer elemento de la cola pasa a ser un mínimo de izquierda a derecha) y se eliminan todos los elementos que dejan de ser mínimos de izquierda a derecha de $M$ manteniendo así el invariante. Finalmente, dado el invariante, el mínimo global será el último elemento de $M$ por lo que \textit{findmin} responde correctamente, además \textit{enqueue} y \textit{dequeue} reponden correctamente como operaciones de cola puesto que trabajan sobre una.
+    \item Consideremos el potencial como el tamaño de $M$, $\phi = |M|$, se cumple que al principio es $0$ y nunca desciende de este valor. Al hacer \textit{findmin} $c = \Theta(1)$ y $\hat{c} = \Theta(1)$ pues el potencial no cambia. Con \textit{dequeue} $c = \Theta(1)$ y $\hat{c} = \Theta(1)$ pues el potencial cambia en $1$. Finalmente, con \textit{dequeue} tenemos que $c = \Theta(1) + |\text{elementos eliminados de $M$}|$, sin embargo el cambio de potencial es exactamente $-|\text{elementos eliminados de $M$}|$, por lo que $\hat{c} = \Theta(1)$.
+    
+\end{enumerate}
+\problem
+\begin{enumerate}[1.]
+        \item Sea $s_{i} = T[i\ldots n]$, el sufijo $i$ de $T$. Primero notemos que $PLCP[j]$ corresponde al número de caracteres entre $s_{j}$ y su anterior lexicográfico (entre lso sufijos de $T$). Veamos ahora que si $PLCP[j-1]\le 1$ la propiedad se cumple pues $PLCP[j] \ge 0$. Supongamos entonces que $p = PLCP[j-1] \ge 2$, esto quiere decir que $s_{j-1}$ y su anterior lexicográfico, digamos $s_{k}$ comparten $p \ge 2$ caracteres y por lo tanto $s_{j}$ comparte $p-1\ge 1$ caracteres con $s_{k+1}$, quizás $s_{k+1}$ no sea el anterior lexicográfico a $s_{j}$, pero este debe compartir al menos tantos caracteres como comparte con $s_{k+1}$, por lo que $PLCP[j] \ge p - 1 = PLCP[j-1] - 1$.
+        \item La primera pasada para calcular el primer $PLCP$ toma tiempo $\mathcal{O}(n)$, luego cada pasada que sigue toma tiempo $PLCP[j]-PLCP[j-1]+1$ (pues nos ahorramos $PLCP[j-1]-1$ para el cálculo de $PLCP[j]$), si sumamos todos lo $PLCP$s, la suma telescopea y nos queda que el cálculo es $\mathcal{O}(n)$.
+\end{enumerate}
+\problem
+\begin{enumerate}[1.]
+    \item El argumento es adversarial, lo que haremos será ofrecerle al algoritmo productos de precio $1$ y en el momento en que nos compre alguno de ellos le ofrecemos inmediatamente uno de precio $k$, si no acepta $k$ de los productos de precio $1$ no le ofrecemos más. Veamos que el óptimo en este caso se lleva $k$ pero cualquier algoritmo online se lleva a lo más $1$ por lo que al menos un algoritmo online es $k$-competitivo.
+    \item Primero notemos que, dado que el máximo que podemos gastar es $k$, si logramos gastar $k/2$ con un algoritmo online ya somos $2$-competitivos. El algoritmo online hace lo siguiente: compra cosas mientras no se llene y si un producto hace que se llene evalúa:
+    \begin{itemize}
+        \item Si vale más de $k/2$ vende todo lo que tiene y compra este producto, llegando a ser $2$-competitivo.
+        \item Si vale menos o $k/2$ no lo compra y se detiene, pues que no le alcance para comprar este producto significa que al menos ya ha gastado $k/2$ en productos antes y por lo tanto es $2$-competitivo.
+    \end{itemize}
+    Finalmente si nunca sucede que no puede comprar un producto la solución es óptima y en consecuencia $2$-competitiva.
+\end{enumerate}
+\end{problems}
+\end{document}

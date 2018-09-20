@@ -1,0 +1,156 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Auxiliar 10 - ``Algoritmos Aleatorizados, Probabilisticos y Aproximados"}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+\begin{center}
+13 de Noviembre del 2017
+\end{center}
+
+
+\vspace{-1ex}
+
+\cfoot{``I have approximate answers and possible beliefs in different degrees of certainty about different things, but I am not absolutely sure of anything, and of many things I don’t know anything about but I don’t have to know an answer.''\\ Richard P. Feynman}
+
+\begin{problems}
+
+\problem {\large\underline{\textbf{Bin Packing}}}\\
+En el problema de \textit{bin packing} tenemos un conjunto de $n$ items, con tamaños $a_1, \ldots, a_n \in (0, 1]$. Por otro lado, tenemos un conjunto $B = \{1, ..., n\}$ de bins con capacidad $1$. Queremos asignar items a los bins, de modo de minimizar el número de bins utilizados
+(no vacíos). Este problema es NP-completo.
+\begin{enumerate}[a)]
+    \item Muestre una 2-aproximación para el problema de \textit{bin packing}.
+    \item Muestre que no es posible lograr un factor de aproximación menor a 3/2 en tiempo polinomial si $P \not= NP$. Para ello, recuerde que el problema de partir un conjunto $X$ de números positivos en dos conjuntos de igual suma (una versión de \textit{Partition}) es NP-completo.
+    \item  Muestre una $3/2$-aproximación para el problema de \textit{bin packing}.
+\end{enumerate}
+\problem {\large\underline{\textbf{Quicksort Aleatorizado}}}\\
+Muestre que el número esperado de comparaciones realizadas por \textit{Quicksort eligiendo pivote al azar} es $\mathcal{O}(n\log{n})$, puede suponer que lo elementos a ordenar son todos distintos. Muestre la propiedad utilizando cada uno de los siguientes métodos:
+\begin{enumerate}[a)]
+    \item Usando variable aleatoria que indica si dos elementos fueron comparados.
+    \item Usando la propiedad de \textit{esperanzas totales}.
+\end{enumerate}
+\problem {\large\underline{\textbf{Matrices}}}\\
+Dadas 3 matrices cuadradas $A, B$ y $C$ de tamaño $n\times n$. Muestre un algoritmo probabilístico que tome tiempo $\mathcal{O}(n^2)$ en determinar si $AB = C$.
+\end{problems}
+\newpage
+\begin{center}
+{\huge \underline{Soluciones}}
+\end{center}
+\begin{problems}
+\problem Llamemos A a la suma de los tamaños de los items, $A = \sum_{i = 1}^n a_{i}$. A partir de esto notamos que $|OPT| \ge \lceil A \rceil$.
+\begin{enumerate}[a)]
+\item El primer algoritmo que veremos será tomar los items e ir poniéndolos en los bins mientras quepan. De este modo si en algún momento un item no cabe en el espacio del bin que se está procesando, agregamos el item a un nuevo bin y continuamos procesando ese bin.\\
+
+Para ver que esto es una $2$-aproximación notemos que como resultado del algoritmo, se cumple que para $i$ impar, la suma de los pesos que contiene un $i$-ésimo procesador junto con la que contiene el $i+1$-ésimo es mayor a $1$ (si no fuese así podría haber puesto el contenido de $i+1$ en $i$). Este argumento se puede aplicar sobre $\left\lfloor \frac{|ALG|}{2} \right\rfloor$ bins y por lo tanto $A > \left\lfloor \frac{|ALG|}{2} \right\rfloor$ y por lo tanto $\lceil A\rceil - 1 \ge \left\lfloor \frac{|ALG|}{2} \right\rfloor$ y así $|OPT| - 1 \ge \frac{|ALG|-1}{2}$ y finalmente $|ALG| \le 2|OPT|$.
+
+\item Supongamos que tenemos una $k<3/2$-aproximación de Bin Packing. Consideremos una instancia $a_{1}, a_{2}, \ldots, a_{n}$ de Partition y la correspondiente instancia de Bin Packing con $s_{i} = 2a_{i}/A$. Veamos que la secuencia es aceptada por Partition ssi la solución del Bin Packing es $2$. Como tengo una aproximación $<3/2$ de Bin Packing, la solución que me de esta aproximación será $2$ ssi la secuencia es aceptada por Partition. Finalmente si esta aproximación es polinomial, habremos encontrado una solución polinomial a Partition que es NP-completo y por lo tanto $P = NP$.
+
+\item El algoritmo que obtiene una $3/2$-aproximación considera los items en orden decreciente, llamemos a este orden de los items $s_{1}\ge s_{2} \ge \ldots \ge s_{n}$. Los elementos se procesan secuencialmente en este orden. Para cada item este se ubica en el primer bin que quepa.\\
+
+Para el análisis de este algoritmos consideremos el bin $j = \lceil (2/3)|ALG| \rceil$ y pongamonos en los siguientes $2$ casos:
+\begin{itemize}
+\item \textbf{El bin $j$ tiene elemento de peso $>1/2$}\\
+Esto significa que todos los bins anteriores (por el funcionamiento del algoritmo) tienen al menos un item de tamaño $1/2$ (pues los items están ordenados decrecientemente) y por lo tanto, sabemos que hay al menos $j$ items de tamaño $>1/2$ que significa que $|OPT|\ge j \ge (2/3)|ALG|$ y por lo tanto $|ALG| \le (3/2)|OPT|$.
+\item \textbf{El bin $j$ (ni ninguno que le sigue) tiene un item de peso $>1/2$}\\
+Por lo tanto los bins $j, j+1, \ldots, |ALG|$ contienen al menos $2(|ALG|-j) + 1$ items y ninguno de ellos cabe en ninguno de los bins $1, 2, \ldots, j-1$ y por lo tanto al unir algunos de esos items en $j-1$ bins, tenemos que  $A \ge \left\lceil(2/3)|ALG|\right\rceil$  y por lo tanto $|ALG| \le (3/2)|OPT|$.
+\end{itemize}
+\end{enumerate}
+\problem 
+\begin{enumerate}[a)]
+    \item Definamos la variable aleatoria $X_{ij}$ que indicatriz que vale $1$ si el $i$-ésimo elemento más pequeño es comparado con el $j$-ésimo por el algoritmo, y $0$ en caso contrario, estamos interesados por tanto en $\mathbb{E}\left(\sum_{i=1}^{n}\sum_{j=i+1}^{n}X_{ij}\right)$, el número esperado de comparaciones. Por lo tanto:
+    \begin{align*}
+    \mathbb{E}\left(\sum_{i=1}^{n}\sum_{j=i+1}^{n}X_{ij}\right) &= \sum_{i=1}^{n}\sum_{j=i+1}^{n}\mathbb{E}(X_{ij})\\
+    &= \sum_{i=1}^{n}\sum_{j=i+1}^{n} \mathbb{P}(\text{$i$-ésimo se compara con el $j$-ésimo})
+    \end{align*}
+    La probabilidad de que suceda este evento es la misma probabilidad de que alguno de los elementos (el $j$-ésimo o el $i$-ésimo) sea escogido antes que cualquier elemento entre ellos que es $2/(j-i+1)$. Por lo tanto:
+    \begin{align*}
+        &= \sum_{i=1}^{n}\sum_{j=i+1}^{n} \mathbb{P}(\text{$i$-ésimo se compara con el $j$-ésimo}) \\
+        &= \sum_{i=1}^{n}\sum_{j=i+1}^{n} \frac{2}{j-i+1}\\
+        &= 2\sum_{i=1}^{n}\sum_{k=1}^{n}\frac{1}{k}\\
+        &= 2n H_{n} \le 2n\ln{n}
+    \end{align*}
+    \item Si estamos ordenando $n$ elementos y escogemos un pivote al azar, el particionar nos cuesta exactamente $n-1$ comparaciones. Luego como el pivote es escogido al azar este puede ser el $i$-ésimo con probabilidad $1/n$ y si $T(n)$ es el tiempo esperado para un input de tamaño $n$, entonces el costo que queda en este caso es $T(n-i-1) + T(i)$. Aplicando esperanzas totales tenemos que:
+    \begin{align*}
+        T(n) &= n-1 + \frac{1}{n}\sum_{i=0}^{n-1}(T(n-i-1) + T(i))\\
+        &= n-1 + \frac{2}{n}\sum_{i=0}^{n-1}T(i)
+    \end{align*}
+    Con esto mostremos por inducción que $T(n) \le 2n\ln{n}$.\\
+    \begin{align*}
+        T(n) &= n-1 + \frac{2}{n}\sum_{i=0}^{n-1}T(i) \\
+        &\le n-1 + \frac{2}{n}\sum_{i=0}^{n-1}2i\ln{i}\\
+        &\le n-1 + \frac{2}{n}\int_{1}^{n}(2x\ln{x})dx\\
+        &= n-1 + \frac{2}{n} (x^2\ln{x} - \frac{x^2}{2})\Big|_1^n\\
+        &= n-1 + 2n\ln{n} - n + \frac{1}{n}\\
+        &\le 2n\ln{n}
+    \end{align*}
+
+\end{enumerate}
+\problem
+Elegimos un vector aleatorio $r$ uniformemente en $\{0, 1\}^n$. Respondemos \texttt{true} si $A(Br) = Cr$ y \texttt{false} en otro caso. Se cumple que cuando es cierto que $AB = C$ el algoritmo responde correctamente \texttt{true}, sin embargo, en caso que $AB \not = C$ puede que el algoritmo de todas formas responda \texttt{true} erróneamente lo que sucede en caso que $A(Br) = Cr$ o equivalentemente $(AB-C) r := Dr = P = 0$.\\
+
+Como $D\not = 0$, existe un $d_{i,j}\not = 0$, la probabilidad de que la coordenada $i$ de $P$ sea 0 es:
+\begin{align*}
+    \mathbb{P}\left(p_{i} = 0\right) &= \mathbb{P}\left(\sum_{k=1}^n d_{i,k}r_k = 0\right)\\
+    &=\mathbb{P}\left(d_{i,j}r_j + y = 0\right)\\
+    &= \mathbb{P}\left(d_{i,j}r_j + y = 0 | y = 0\right)\mathbb{P}(y = 0) + \mathbb{P}\left(d_{i,j}r_j + y = 0 | y \not= 0\right)\mathbb{P}(y \not= 0)\\
+    &=  \mathbb{P}\left(r_j = 0\right)\mathbb{P}(y = 0) + \mathbb{P}\left(r_j = 1 \land  y = -d_{i,j} \right)(1-\mathbb{P}(y = 0))\\
+    &\le \mathbb{P}\left(r_j = 0\right)\mathbb{P}(y = 0) + \mathbb{P}\left(r_j = 1\right)(1-\mathbb{P}(y = 0))\\
+    &= \frac{1}{2}\mathbb{P}(y = 0) + \frac{1}{2}(1-\mathbb{P}(y = 0))\\
+    &= \frac{1}{2}
+\end{align*}
+, luego la probabilidad de error del algoritmo en este caso es:
+\begin{align*}
+    \mathbb{P}(P=0) \le \mathbb{P}(p_{i}=0)\le \frac{1}{2}
+\end{align*}
+\end{problems}
+\end{document}

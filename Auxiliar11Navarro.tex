@@ -1,0 +1,139 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Auxiliar 11 - ``Algoritmos Paralelos"}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+\begin{center}
+20 de Noviembre del 2017
+\end{center}
+
+
+\vspace{-1ex}
+
+\cfoot{``Everybody who learns concurrency thinks they understand it, ends up finding mysterious races they thought weren’t possible, and discovers that they didn’t actually understand it yet after all.''\\ Herb Sutter}
+
+\begin{problems}
+\problem {\large\underline{\textbf{Copias}}}\\
+Se desea, dado un cierto valor $x$, generar $n$ copias de este.
+\begin{enumerate}[a)]
+    \item Diseñe un algoritmo CREW de tiempo $\mathcal{O}(1)$ y eficiencia $\Theta(1)$
+    \item Diseñe un algoritmo EREW de tiempo $\mathcal{O}(\log n)$ que use $n$ procesadores
+    \item Mejórelo para obtener eficiencia $\Theta(1)$
+\end{enumerate}
+
+\problem {\large\underline{\textbf{Particionar paralelo}}}\\
+Diseñe un algoritmo paralelo con $n$ procesadores que, dado un pivote cualquiera en una lista con $n$ elementos no repetidos, realice una partición de la lista con respecto a tal pivote en tiempo $\Theta(\log{n})$. Es decir, el algoritmo debe dejar todos los elementos menores al pivote a un lado de la partición y todos los mayores al otro. La eficiencia de su algoritmo debe ser $\mathcal{O}(1)$.
+\problem {\large\underline{\textbf{Envoltura convexa}}}\\
+La envoltura convexa de un conjunto de puntos $S = \{p_1, p_2, \ldots , p_n\}$ de coordenadas $p_i = (x_i, y_i)$ es el polígono convexo más pequeño que cubre todos los puntos de $S$.\par
+
+Proponga un algoritmo paralelo con $\mathcal{O}(n)$ procesadores que calcule la envoltura convexa de un
+conjunto de puntos $S$. Para ello, considere calcular primero la envoltura convexa superior y luego la inferior, y unirlas para dar el resultado. ¿Puede extender esta idea recursivamente?. Calcule $T(n)$, $T(n, p)$ (para $\mathcal{O}(n)$ procesadores), $W(n)$ y $E(n, p)$.\par
+
+Suponga que el problema de encontrar las tangente entre dos envolturas convexas se puede hacer en $\mathcal{O}(\log{n})$ de manera secuencial. Además puede suponer que se puede ordenar con $n$ procesadores en tiempo $\mathcal{O}(\log{n})$.
+\end{problems}
+\newpage
+\begin{problems}
+\problem
+\begin{enumerate}[a)]
+\item
+Los $n$ procesadores miran a $x$ y lo copian en $B[p]$ en $1$ paso paralelo.
+Con esto tenemos que:
+\begin{align*}
+    T(n,n) &= 1\\
+	T(n) &= n\\
+	E(n,n) &= \frac{n}{n\cdot 1} = \mathcal{O}(1)
+\end{align*}
+\item 
+Lo anterior es CREW, para hacerlo EREW duplicamos los $x$'s en cada paso usando el doble de procesadores que en el paso anterior, hasta $\frac{n}{2}$.\\
+\begin{algorithm}[H]
+
+\SetAlgoLined
+\For{$i \gets 0 \ldots (log(n) - 1)$}{
+    \If {$p \le 2^i$}{
+        $B[2^i+p] = B[p]$
+    }
+}
+\end{algorithm}
+Notemos ahora que son $\log{n}$ pasos y se ocupan $\frac{n}{2}$ procesadores, por lo que:
+\begin{align*}
+T(n,n/2) &= \log{n}\\
+E(n,n/2) &= \frac{n}{n/2\cdot \log{n}} = \mathcal{O}(1/\log{n})
+\end{align*}
+\item
+Primero veamos que $W(n)=n$ pues se siguen copiando la misma cantidad de elementos.\\
+Ahora, por lema de Brent tenemos que existe un algortimo EREW tal que:
+\begin{align*}
+T\left(n,\frac{n}{\log{n}}\right) &= \mathcal{O}(\log{n})\\
+E\left(n,\frac{n}{\log{n}}\right) &= \frac{n}{\frac{n}{\log{n}}\cdot \mathcal{O}(\log{n})} = \mathcal{O}(1)
+\end{align*}
+Para lograr esto podemos hacer $n/\log{n}$ copias de $x$ con $n/\log{n}$ procesadores con el algoritmo de b) en tiempo $\log{n}$. Finalmente ponemos a cada uno de los procesadores con cada una de las copias realizadas a hacer $\log{n}$ copias con el algoritmo secuencial.
+\end{enumerate}
+\problem La idea general para resolver este problema consiste en utilizar \textit{prefijo paralelo} para hacer un filtro de los mayores al pivote y otro de los menores al pivote.\\
+
+En el algoritmo tendremos un arreglo $B$,  una variable $x$, el pivote $p$ y un arreglo $aux$ de salida para la partición en la memoria compartida. Cada procesador se encarga de un elemento del arreglo. Lo primero que hacen los procesadores es mirar su elemento y poner $1$ en la correspondiente posición en $B$ si es menor al pivote $p$, $0$ si no. Luego de esto ponemos a los procesadores a hacer \textit{prefix sum} sobre $B$, al finalizar dejamos $x\gets B[n]$ y el pivote en la posición $x+1$. Finalmente, los procesadores miran a $B$ y si su valor es distinto al de la posición anterior (o si son el primer valor y $B$ tiene un $1$) entonces escribimos el número en la posición correspondiente de $aux$. Para poner a los mayores al pivote repetimos el proceso anterior considerando el offset $x$ para la parte final.\\
+
+Veamos que el tiempo paralelo es el tiempo de \textit{parallel prefix} $T(n,n) = \log{n}$. Sin embargo, la eficiencia nos queda $E(n,n) = \frac{n}{n\log{n}} = \frac{1}{\log{n}}$. Para arreglar esto haremos que un procesador se encargue de $\log{n}$ elementos, con esto los pasos distintos a \textit{parallel prefix} quedarán de $\mathcal{O}(\log{n})$ pero solo se necesitarán $\Theta(n/\log{n})$ procesadores, con lo que la eficiencia llega a $1$.
+
+\problem Resolveremos el problema de encontrar la envoltura convexa superior, la parte inferior se hace análogamente a lo que describiremos. Para esto primero ordenamos los puntos por coordenada $x$ luego lo que haremos será dividir los puntos en $\sqrt{n}$ partes de $\sqrt{n}$ puntos, obtener las envolturas convexas de cada una de las partes recursivamente y con esto formar la envoltura convexa de los $n$ puntos, el último paso lo haremos en $\log{n}$ por lo que el tiempo total será $T(n) = \log{n} + T(\sqrt{n}) = \mathcal{O}(\log{n})$.\\
+
+Para obtener la envoltura convexa teniendo las otras $\sqrt{n}$ asignaremos $\sqrt{n}$ procesadores a cada parte y en cada una de ellas haremos lo siguiente:
+\begin{itemize}
+    \item Encontramos los puntos $p_{i}\in parte, q_{i}$ que están en la tangente de la $parte$ con la parte $i$, lo que se puede hacer en $\log{\sqrt{n}} = \mathcal{O}(\log{n})$. Para esto, cada procesador se encarga de encontrar un par de puntos con el algoritmo secuencial.
+    \item Encontramos la tangente con menor pendiente entre las que pasan por $(p_{1},q_{1}), (p_{2}, q_{2}), \ldots ,$ $(p_{i-1}, q_{i-1})$, sean $(p_{l}, q_{l})$ los puntos por los que pasa tal tangente
+    \item Encontramos la tangente con mayor pendiente entre las que pasan por $(p_{i},q_{i}), (p_{i+1}, q_{i+1}), \ldots ,$ $(p_{\sqrt{n}}, q_{\sqrt{n}})$, sean $(p_{r}, q_{r})$ los puntos por los que pasa tal tangente. Veamos que este paso y el anterior se pueden realizar en $\mathcal{O}(\log{n})$ como se vio en clases.
+    \item Si el ángulo superior que forma la intersección de las tangentes que pasan por $(p_{l}, q_{l})$ y $(p_{r}, q_{r})$ es menor a $\pi$ entonces ninguno de los puntos de esta parte pertenecen a la envoltura convexa de las partes. Por otro lado, si este ángulo es $\ge \pi$ entonces todos los puntos $p_{l}, \ldots, p_{r}$ son parte de la envoltura convexa. Hacemos un \textit{mapping} a $0$s y $1$s de los puntos que están en la envoltura convexa de las partes en $\mathcal{O}(1)$.
+\end{itemize}
+Finalmente unimos los puntos de las partes que son parte de la envoltura convexa (usando \textit{parallel prefix} sobre los \textit{mappings}) en $\mathcal{O}(\log{n})$.
+\end{problems}
+\end{document}

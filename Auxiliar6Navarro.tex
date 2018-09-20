@@ -1,0 +1,127 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Auxiliar 6 - ``Algoritmos Online"}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+\begin{center}
+16 de Octubre del 2017
+\end{center}
+
+
+\vspace{-1ex}
+
+\cfoot{``I didn't come here to be the average.''\\Michael Jordan}
+
+\begin{problems}
+\problem {\large\underline{\textbf{Tom y Jerry}}}\\
+Jerry lanza platos desde lo alto de un armario y Tom intenta recogerlos antes de que se estrellen en el suelo del pasillo. El pasillo tiene $2k + 1$ baldosas y Tom recorre una baldosa por segundo. Un plato tarda $k$ segundos en llegar al suelo desde que Jerry lo lanza. Tom sabe en qué baldosa caerá el plato en el instante
+en que Jerry lo lanza, de manera que puede recorrer hasta $k$ baldosas para salvarlo. Jerry lanza un plato por segundo, y lo puede lanzar hacia la baldosa que quiera.
+Nos interesa diseñar una estrategia competitiva para Tom (en términos de la cantidad de platos salvados). Tom comienza parado en la baldosa central, y Jerry lanzará $n$ platos.
+\begin{enumerate}[a)]
+    \item Muestre que la estrategia de ir a buscar el siguiente plato lanzado en caso de que sea posible alcanzarlo (e ignorar todo hasta recogerlo), y sino seguir en el mismo lugar esperando el próximo plato, no es $c$-competitiva para ninguna constante $c$.
+    \item Muestre que la estrategia de ir a buscar siempre el plato más cercano al suelo, tampoco es $c$-competitiva.
+    \item Diseñe una estrategia $2k$-competitiva para Tom. Demuestre su competitividad y encuentre un caso donde se salve sólo uno de cada $2k$ platos que podría salvar en el algoritmo óptimo (que leyera la mente de Jerry).
+\end{enumerate}
+\problem {\large\underline{\textbf{k servidores, online}}}\\
+Considere el escenario donde tiene $k$ puntos (\textit{servidores}) en un espacio \textit{métrico} y una secuencia de puntos (\textit{peticiones}) que debe atender. Cada vez que llega una petición, un servidor debe moverse hacia esa posición para atenderla.\\
+El problema \textit{online} consiste en minimizar la distancia recorrida por todos los servidores luego de $n$ peticiones, sin saber la secuencia de puntos a atender.
+\begin{enumerate}[a)]
+    \item Muestre que para cualquier algoritmo su radio competitivo es al menos $k$.   
+    \item Consideremos ahora el problema de $2$ servidores y sus peticiones en una línea. Muestre que el algoritmo de enviar al servidor más cercano no es $c$-competitivo para ninguna constante $c$.
+\end{enumerate}
+\end{problems}
+\newpage
+\begin{center}
+{\huge \underline{Soluciones}}
+\end{center}
+\begin{problems}
+\item Para desarrollar este problema nombraremos las baldosas $-k, -k+1, \ldots, -1, 0, 1, \ldots, k-1, k$ de un extremo a otro, de modo que Tom empieza en la baldosa $0$. Además, dado que nos enfrentamos a un problema de maximización diremos que un algoritmo online es $\rho(n)$-competitivo si se cumple que existe una constante $k$ para la cual se cumpla que en todo input de tamaño $n$
+\begin{align*}
+    \rho(n)\cdot ALG \ge OPT + k
+\end{align*}
+\begin{enumerate}[a)]
+    \item Si Jerry \demon, lanza el primer plato en $-k$, y los $n-1$ restantes en $k$, Tom irá a buscar el primer plato a $-k$, pero luego no irá por el resto de los platos, pues
+    \begin{itemize}
+        \item O bien, está esperando el plato de $-k$.
+        \item O bien, ya atrapo el plato de $-k$, pero no alcanza los que están en $k$.
+    \end{itemize}
+    Por lo tanto, mientras este algoritmo solo salva $1$ plato, el óptimo salva los $n-1$ de $k$. De modo que $OPT = n-1\cdot ALG$, y entonces, $> c\cdot ALG$ para cualquier constante $c$ eligiendo $n$ suficientemente grande.
+    \item Jerry podría lanzar el primer plato en $-1$ y los siguientes en $1, 2, \ldots, k-1, k, k-1, \ldots$. En este caso, Tom espera el plato de $-1$ y luego de obtenerlo va a buscar los platos en el mismo orden en que Jerry los lanzó, pero no alcanza ninguno de ellos, en cambio el óptimo hubiese dejado el plato en $-1$ y recogido los demás de la secuencia de lanzamientos. Se cumple entonces que $OPT = n-1\cdot ALG$, por lo que se procede del mismo modo que en la parte anterior para mostrar que este algoritmo no es $c$-competitivo.
+    \item La estrategia es la siguiente; si Tom está al medio, su objetivo será el plato que Jerry está lanzando en ese momento, lo va a buscar y luego vuelve al centro repitiendo así esta estrategia.\\
+    Notemos primero que Tom siempre recoge su objetivo (pues este está a distancia a lo más $k$). Además, en ir y volver, Tom se demora a lo más $2k$ segundos, y por lo tanto el óptimo offline a lo más pudo salvar $2k$ platos en ese transcurso. Con esto se cumple que en cada \textit{ida y vuelta} $2k\cdot ALG \ge 2k \ge OPT$ y como esto se cumple para todas las ``ida y vuelta''s realizadas, este algoritmo es $2k$-competitivo.
+\end{enumerate}
+\item
+\begin{enumerate}[a)]
+    \item Sea $k$ y $A$ un algoritmo que resuelve el problema de los servidores. Considere el siguiente input: un espacio métrico con $k+1$ puntos (uno más que el número de servidores) y los servidores parten ubicados en los primeros $k$. Las peticiones $\sigma=\sigma_{1}\ldots\sigma_{r}$ serán aquellos puntos que $A$ no tiene cubierto en ese momento \demon (por palomar siempre existe uno de estos puntos) empezando por $k+1$.\\
+
+Con esto construiremos $k$ algoritmos que lo hacen ``mejor'' que $A$, $B_{1}, \ldots, B_{k}$. De modo que :
+\begin{itemize}
+    \item Antes de la primera petición $B_{i}$ manda al servidor que está en $i$ a $k+1$.
+    \item Queremos mantener el invariante que en cada petición todos los $B_{i}$ tienen cubierto a $\sigma_{i}$.
+    \item Para lograr lo anterior, cuando se pida $\sigma_{i-1}$ y $A$ lo cubra con un servidor que se encontraba en $\sigma_{i}$ (esto es así pues las peticiones fueron construidas de esta forma), existirá un único\footnote{Notar que este es otro invariante que mantienen los algoritmos} $B_{j}$ que no tiene cubierto $\sigma_{i}$ y este (luego de responder la petición $i-1$) lo cubrirá con el servidor que tiene en $\sigma_{i-1}$.
+    \item Con esto tenemos que la suma de los costos de los $B_{i}$ corresponden a los movimientos que se hacen antes de la primera petición, más los movimientos que hace exactamente uno de los $B_{i}$ luego de cada petición. Sin embargo, este último costo es el mismo que realiza $A$ (cuando $A$ mueve uno de sus servidores de $\sigma_{i}$ a $\sigma_{i-1}$ alguno de los $B_{i}$ ya lo hizo desde $\sigma_{i-1}$ a $\sigma_{i}$). Es decir,
+    \begin{align*}
+        \sum_{i=1}^k C_{B_{i}}(\sigma) &= C_{A} + \sum_{i=1}^k dist(i, k+1)\\
+        &\le C_{A} + k\max_i (dist(i, k+1))
+    \end{align*}
+    Finalmente debe existir uno de estos algoritmos que cumpla:
+    \begin{align*}
+        OPT \le C_{B_{j}}(\sigma) &\le \frac{1}{k}C_{A} + \max_i dist(i, k+1)
+    \end{align*}
+    ,por lo que $A$ es al menos $k$- competitivo.
+\end{itemize}
+\item Consideremos el input con los puntos de la recta numérica, los servidores inicialmente ubicados en $2$ y $4$ y la secuencia de peticiones $1, 2, 1, 2, 1, 2, \ldots, 1, 2$ (repitiendo $1, 2$ $n$ veces). El algoritmo estará moviendo el servidor de la izquierda entre $1$ y $2$ teniendo un costo total de $2n$. Sin embargo, el óptimo consiste en responder la primera petición con el servidor de la derecha y luego no mover más los servidores, a costo total $3$. Finalmente, como $n$ es un valor arbitrario, el algoritmo puede ser tan malo (respecto al óptimo) como queramos, por lo que no puede ser $c$-competitivo para ninguna constante $c$.
+\end{enumerate}
+\end{problems}
+\end{document}

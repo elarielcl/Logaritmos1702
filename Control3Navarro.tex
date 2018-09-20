@@ -1,0 +1,76 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Soluciones Control 3}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+
+
+\vspace{-1ex}
+
+
+\begin{problems}
+\problem 
+\begin{enumerate}[1.]
+    \item Si tomamos un elemento uniformemente al azar entre todos los de $A$ y verificamos si este aparece más de $\alpha\cdot n$ veces, entonces tenemos lo siguiente:
+    \begin{itemize}
+        \item Si existe un elemento $\alpha$-mayoritario entonces existe una probabilidad de al menos $\alpha$ de encontrarlo (pues el elemento es $\alpha$-mayoritario) y por lo tanto el algoritmo es correcto con probabilidad al menos $\alpha$ (puede que haya más de un $\alpha$-mayoritario pero eso solo aumenta la probabilidad de encontrar alguno de ellos). Notemos que con esto la probabilidad de error en este caso es de a lo más $1-\alpha$.
+        \item En caso que no exista un elemento $\alpha$-mayoritario entonces, independiente del elemento escogido, la verificación posterior de este elemento hace que el algoritmo sea correcto.
+    \end{itemize}
+    \item Repetimos este experimento $k$ veces y respondemos que existe un $\alpha$-mayoritario si alguna de las ejecuciones lo encuentra, y que no existe en caso contrario. Su costo es $kn$, como cada una de las ejecuciones son independientes, la probabilidad de error del algoritmo es a lo más $(1-\alpha)^{k}$, es decir, si queremos una probabilidad de error de $\epsilon$ debemos hacer $\sim \frac{\log{\epsilon}}{1-\alpha}$ repeticiones, y entonces el costo del algoritmo es $\sim n \frac{\log{\epsilon}}{1-\alpha}$.
+\end{enumerate}
+\problem \textbf{La pregunta fue cambiada a un algoritmo que toma las aristas del grafo elige al azar uno de sus extremos y elimina todas las aristas adyacentes a este. Este algoritmo resuelve el cubrimiento por vértices sin pesos.}\\
+Sea $S_{i}$ el conjunto de vértices que tiene el algoritmo luego de la $i$-ésima iteración,$OPT$ el conjunto de vértices de la solución óptima y  $p_{i}$ la probabilidad de que el $i$-ésimo vértice escogido por el algoritmo sea parte de $OPT$. Definiendo las variables aleatorias adecuadas se puede mostrar que $\mathbb{E}(|OPT \cap S_{i+1}|) = \mathbb{E}(|OPT \cap S_{i}|) + p_{i+1}$ y también $\mathbb{E}(|S_{i+1}\setminus OPT|) = \mathbb{E}(|S_{i}\setminus OPT|) + (1-p_{i+1})$, luego como $p_{i}\ge 1/2$ (pues al mirar una arista al menos uno de sus extremos debe estar en $OPT$) y con esto se cumple (si $S$ es el conjunto final obtenido por el algoritmo) $\mathbb{E}(|OPT \cap S|) \ge \mathbb{E}(|S\setminus OPT|)$, es decir (en valor esperado) los vértices que coinciden con el óptimo son más que los que no, y por lo tanto $\mathbb{E}(|S|)\le 2|OPT|$.
+\problem Según la 2 aproximación de $Bin-Packing$ que vimos en la auxiliar, aplicarla nos daría una solución con a lo más $2m$ bins (mochilas). Si de esta tomamos las $m$ mochilas que tengan más elementos, contienen más de la mitad de los elementos y por lo tanto esta solución es una $2$-aproximación (el óptimo a lo más contiene todos los elementos).
+\end{problems}
+\end{document}

@@ -1,0 +1,187 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts,setspace}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[spanish]{babel}
+\usepackage[lined,boxed,commentsnumbered]{algorithm2e}
+\SetKwInput{KwIn}{Input}
+\renewcommand{\algorithmcfname}{Algoritmo}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
+
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Tarea 2 - Diccionarios de Strings}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{Manuel Cáceres}
+\assistantt{Jaime Salas}
+\assistantt{Tomás Perry}
+
+\begin{document}
+\captionsetup[table]{name=Tabla}
+\captionsetup[table]{name=Figura}
+
+\maketitle
+\vspace{-1ex}
+\section{Introducción}
+Un \textit{Diccionario de Strings} es un tipo de datos que almacena elementos, cuyas llaves son Strings sobre un alfabeto $\Sigma$ de tamaño $\sigma$. En clases vimos los \texttt{Tries}, árboles de aridad $\sigma+1$, cuyas aristas representan símbolos de $\Sigma$ y los caminos de la raíz a las hojas representan a los \texttt{Strings} almacenados en el \texttt{Trie}. De este modo, si implementamos los nodos del \texttt{Trie} como arreglos de referencias a sus $\sigma+1$ hijos, podemos responder si un \texttt{String} $P$ se encuentra en el \textit{Diccionario} en tiempo $\mathcal{O}(|P|)$ avanzando en el $\texttt{Trie}$ al mismo tiempo que avanzamos en los símbolos de $P$. El problema de esta implementación es que si tenemos $n$ \texttt{Strings} de largo total $N$ en el \texttt{Trie} usamos espacio entre $n(\sigma+1)$ y $N(\sigma+1)$.\\
+
+El objetivo de esta tarea es implementar y evaluar en la práctica alternativas de implementación de un \textit{Diccionario de Strings}, comparando tiempos de construcción, de búsqueda, recorrido y espacio utilizados. Las alternativas que se les pide implementar son las siguientes:
+
+\begin{itemize}
+\item \texttt{Árbol Patricia}
+\item \texttt{Árbol de Búsqueda Ternario}
+\item \texttt{Hashing con Linear Probing}
+\end{itemize}
+
+Nuevamente, se espera que se implementen las estructuras y los algoritmos correspondientes y se entregue un informe que indique claramente los siguientes puntos:
+\begin{enumerate}[1.]
+    \item Las \textit{hipótesis} escogidas antes de realizar los experimentos.
+    \item El \textit{diseño experimental}, incluyendo los detalles de la implementación de los algoritmos, la generación de las instancias y las medidas de rendimiento utilizadas.
+    \item La \textit{presentación de los resultados} en forma de una descripción textual, tablas y/o gráficos.
+    \item El \textit{análisis e interpretación} de los resultados.
+\end{enumerate}
+\newpage
+\section{Las Estructuras}
+\subsection{Árbol Patricia}
+Un \texttt{Árbol Patricia} \footnote{Existen diferentes formas de ver los \texttt{Árboles Patricia}. En algunas, la palabra completa se encuentra almacenada en las hojas; en otras, los nodos intermedios almacenan subcadenas. Otras variantes utilizan etiquetas numéricas en vez de subcadenas. Estos cambios alteran ligeramente los algoritmos de inserción y búsqueda. Si decidiera utilizar una variante diferente para sus implementaciones, explicítela en el informe, detallando las diferencias con las versiones aquí expuestas y justificando su decisión.}  (también llamados Compressed Radix Tree, Compressed Prefix Tree, Compressed Trie, entre otros) es un \texttt{Trie} en el que se han comprimido las ramas unarias, reemplazándolas por arcos. En otras palabras, se reemplazan caminos unarios de la forma $N_{1} \stackrel{c_{1}}{\rightarrow}\ldots \stackrel{c_{k}}{\rightarrow} N_{k+1}$  por $N_{1} \stackrel{c_{1}\ldots c_{k}}{\rightarrow} N_{k+1}$. Gráficamente, un \texttt{Árbol Patricia} tiene la siguiente forma:
+\begin{figure}[h]
+\centering
+ 	\includegraphics[scale=1.5]{imagenes/Patricia_trie}
+\end{figure}
+
+Un \texttt{Árbol Patricia} tiene una hoja por cada palabra que almacena. Adicionalmente, un árbol de este tipo con $n$ hijos tiene a lo sumo $n$ nodos internos, por lo que ocupa espacio $\mathcal{O}(n)$.
+\subsubsection*{Búsqueda}
+Para buscar una palabra $P [1, m]$ en un \texttt{Árbol Patricia}, se navega en éste utilizando las etiquetas de los nodos, comparando las subcadenas de la palabra con éstas. Si se llega a una hoja a la vez que se termina de comparar la palabra que se busca, se ha encontrado el patrón. En caso contrario, no. De esta forma, la búsqueda toma tiempo $\mathcal{O}(m)$
+\subsubsection*{Inserción}
+Para la inserción de una palabra $P$ , se busca en el árbol: la acción que se toma depende de la razón por la que no se ha encontrado:
+\begin{itemize}
+\item Si fue porque se llegó a un nodo que no tiene un hijo que comience con la siguiente letra, se busca una hoja del nodo en el que no se pudo bajar y se reinserta $P$ desde esa hoja.
+\item Si fue porque se acabó el patrón en un nodo antes de llegar a una hoja, en medio de una
+arista, se busca una hoja cualquiera del hijo de esa arista y se reinserta $P$ desde ésta.
+\item Si fue porque se llegó a una hoja, se reinserta $P$ desde esta hoja.
+\end{itemize}
+\subsubsection*{Reinserción desde una hoja}
+Esta subrutina se utiliza en ciertos casos de inserción, como ya se mencionó. Se tiene una palabra $P$ que se desea insertar en la estructura, y una hoja a la que se llegó, que representa una palabra $P'$
+\begin{itemize}
+\item Se compara $P$ con $P'$ , encontrándose $p$, el prefijo máximo común.
+\item Se entra al árbol desde la raíz, buscándose $p$.
+\begin{itemize}
+\item Si $p$ se encontró a la mitad de una arista, se corta la arista con un nodo de dos hijos: la hoja $P$ y el hijo original de la arista.
+\item Si $p$ se encontró en un nodo, se agrega $P$ como nuevo hijo de ese nodo.
+\end{itemize}
+\end{itemize}
+\subsection{Árbol de Búsqueda Ternario} 
+Otra alternativa a los \texttt{Trie} son los \texttt{Árboles de Búsqueda Ternarios}(\texttt{ABT}) que son una mezcla entre un \texttt{Trie} y un \texttt{Árbol de Búsqueda}. Los \texttt{ABT} consisten en nodos etiquetados con símbolos en $\Sigma$ y tres hijos. La idea es similar a la de los \texttt{Trie}; a medida que se avanza en el árbol (en profundidad) se van identificando los símbolos del \texttt{String} en el \textit{Diccionario}, sin embargo, la identificación de un símbolo no es tan directa como lo es en un \texttt{Trie}.\\
+
+Un nodo en un \texttt{ABT} etiquetado con el símbolo $s$ tiene como hijo del centro a un \texttt{ABT} que representa los \texttt{Strings} que comienzan con el símbolo $s$. Por otro lado, el hijo izquierdo es un \texttt{ABT} que contiene los \texttt{Strings} que empiezan con un símbolo \textit{menor} a $s$.Y de manera análoga el hijo derecho tiene un \texttt{ABT} que contiene los \texttt{Strings} que empiezan con un símbolo \textit{mayor} a $s$.
+\newpage
+
+Gráficamente, un \texttt{Árbol de Búsqueda Ternario} con palabras de 2 símbolos tiene la siguiente forma:
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{imagenes/tst}
+\end{figure}
+
+Se muestra que en \textit{promedio} los \texttt{ABT} ocupan espacio entre $3n$ y $3N$.
+\subsubsection*{Búsqueda}
+Al igual que en un \texttt{Trie}, para buscar un \texttt{String} $P[1,m]$, se avanza símbolo por símbolo en $P$. Si se está analizando $P[i]$, al entrar en un nodo:
+\begin{itemize}
+\item Si este tiene como etiqueta $P[i]$, se desciende por su hijo del centro buscando ahora $P[i+1]$.
+\item Si la etiqueta es menor a $P[i]$, este se busca en el hijo derecho.
+\item Si es mayor, se busca en el hijo izquierdo.
+\end{itemize}
+Si en algún momento se llega a un árbol vacío antes de procesar completamente $P$, entonces $P$ no es parte del \textit{Diccionario}. Se muestra que en \textit{promedio} esto toma $\mathcal{O}(m + \ln n)$.
+\subsubsection*{Inserción}
+Para insertar en un \texttt{ABT}, primero se hace una búsqueda de $P$. Sea $P[i,m]$ el sufijo del \texttt{String} que faltó por procesar y $r$ la referencia al nodo \textit{vacío} donde terminó la búsqueda de $P$. Lo que se hace entonces es insertar $P[i,m]$ en $r$ como si fuera un \texttt{Trie}, es decir, creando nodos unidos por su referencia central que tienen como etiquetas los símbolos de $P[i,m]$.\newpage
+\subsection{Hashing con Linear Probing}
+Sea $h: \Sigma^* \to \mathbb{Z}$ una función de hash para \texttt{Strings} y $T[0,k-1]$, con $n\le k$, un arreglo de \texttt{Strings} llamado \textit{tabla de hash}. Otra forma de implementar un \textit{Diccionario de Strings} consiste en guardar los \texttt{Strings} en la \textit{tabla de hash}, en las posiciones dadas según la función de hash. En caso que exista una \textit{colisión}\footnote{Dos string que dan el mismo valor de hash.} se prueba en la siguiente posición de $T$ sucesivamente. A este método de resolución de colisiones se le conoce como \textit{Linear Probing}.
+\subsubsection*{Búsqueda}
+Para buscar un \texttt{String} $P[1,m]$, primero calculamos su \textit{función de hash} $f \gets h(P)$ y luego su posición en $T$, $i \gets f\ mod\ k$. Con esto hacemos una búsqueda secuencial en $T$ desde $T[i]$(volvemos al principio si llegamos al final de la tabla) comparando con $P$ hasta que lo encontramos. En caso que no lo encontremos (lleguemos a una entrada vacía en la tabla) $P$ no es parte del diccionario. Considerando suposiciones razonables sobre la función de hash utilizada y la ocupación de la tabla esta implementación toma tiempo $\mathcal{O}(m)$.
+\subsubsection*{Inserción}
+Para insertar un String $P[1,m]$ calculamos nuevamente su posición $i$ en $T$ y desde $T[i]$ buscamos secuencialmente(volvemos al principio si llegamos al final de la tabla) el primer lugar vacío $T[j]$ donde ubicamos a $P$. Considerando suposiciones razonables sobre la función de hash utilizada y la ocupación de la tabla esta implementación toma tiempo $\mathcal{O}(1)$.\\
+
+El espacio ocupado por esta implementación es $\mathcal{O}(N+k)$.
+
+\section{Aplicaciones}
+\subsection{Búsqueda en Texto}
+Para implementar \textit{Búsqueda en Texto} con estas estructuras:
+\begin{itemize}
+\item Separamos el \texttt{Texto} en palabras.
+\item Utilizamos estas palabras como el conjunto de llaves del \textit{Diccionario}.
+\item Los valores asociados a las llaves corresponden a las posiciones en donde se encuentra la palabra en el \texttt{Texto}.
+\end{itemize}
+De este modo cuando busquemos si una palabra está en la estructura podemos determinar eficientemente si ésta está en el \texttt{Texto}, cuántas veces aparece, y cuáles son sus ubicaciones en él.
+\subsection{Simlitud entre Textos}
+Se les pide también medir la \textit{similitud} entre dos \texttt{Textos}. Para esto consideraremos un índice de similitud. Si $T_{1}$ y $T_{2}$ son 2 textos(a los que les queremos calcular su similitud), $T_{1}T_{2}$ será su concatenación y $P$ el conjunto de palabras presentes en esta concatenación. Definimos entonces la \textit{similitud} entre $T_{1}$ y $T_{2}$ como:
+\begin{align*}
+similitud(T_{1}, T_{2}) &= 1 - \frac{\sum_{s\in P}|count(s,T_{1})-count(s,T_{2})|}{count(T_{1}T_{2})}
+\end{align*}
+donde $count$ retorna el número de palabras $s$ presentes en el \texttt{Texto} (si $s$ no es especificado, retorna el número de palabras del \texttt{Texto}).\\
+
+Para calcular la $similitud$ entre $T_{1}$ y $T_{2}$:
+\begin{itemize}
+\item Separamos ambos \texttt{Textos} en palabras.
+\item Utilizamos estas palabras como el conjunto de llaves del \textit{Diccionario}.
+\item Los valores asociados a las llaves corresponden a un par que representa la frecuencia de aparición de la palabra en cada uno de los \texttt{Textos}, $T_{1}$ y $T_{2}$.
+\end{itemize}
+Para calcular la $similitud$ hacemos un recorrido en los valores del \textit{Diccionario}.
+\section{Datos y Experimentos}
+Utilice, al menos, textos de lenguaje natural. Preprocese los textos que usará: elimine saltos de línea, puntuación, lleve todo a minúsculas y otras operaciones que estime convenientes. Luego de este preprocesamiento, asegúrese de que sus textos tengan largos (al menos aproximados) de $n = 2^i$ palabras, con $i \in \{10, 11, \ldots, 20\}$, asegúrese también de tener al menos $2$ textos diferentes de cada largo para realizar las pruebas de similitud.\\
+Para cada texto, construya cada una de las estructuras midiendo sus tiempos de construcción correspondientes, también \textit{estime} el espacio ocupado por cada una de ellas. Para la \textit{la tabla de hash} asegúrese que el porcentaje de llenado de esta nunca supere el 40\%, además utilice una función de hash apropiada para \texttt{Strings}, no olvide documentar este dato también. Para los Árboles agregue cada palabra junto a un símbolo $\$ \not \in \Sigma$ (y menor lexicográficamente a cualquier otro símbolo) concatenado al final, de este modo será más fácil identificar palabras que son prefijos de otras en el \textit{Diccionario}. \\
+
+Escoja $n/10$ palabras de forma aleatoria del texto y encuentre todas las ocurrencias de éstas, registrando los tiempos de búsqueda en función del largo $m$ del patrón para cada una de las estructuras. Escoja también palabras que no se encuentren en el texto y registre los tiempos de ``search miss'' dependiendo del largo $m$.\\
+Finalmente, escoja pares de textos de tamaño similar y calcule su similitud. Tome los tiempos de inserción de las palabras y los tiempos de ``recorrido'' de la estructura (parte final del calculo de similitud). Repita estos procesos (construcción, búsquedas y recorridos) para obtener promedios confiables para los tiempos registrados.\\
+
+Note que tiene libertad para escoger los textos que utilizará: de esta forma, puede escogerlos para ayudarse a poner a prueba su hipótesis, si fuera necesario. Otro grado de libertad es el tamaño del alfabeto con el que trabajará (por ejemplo, puede comparar lo que sucede al utilizar lenguaje natural versus binario).
+\section{Entrega de la Tarea}
+\begin{itemize}
+    \item La tarea puede realizarse en grupos de a lo más 3 personas.
+    \item Para la implementación puede utilizar C, C++ o Java. Para el informe se recomienda utilizar \LaTeX .
+    \item Siga buenas prácticas (\textit{good coding practices}) en sus implementaciones.
+    \item Escriba un informe claro y conciso. Las ponderaciones del informe y la implementación en su nota final son las mismas.
+    \item Tenga en cuenta las sugerencias realizadas en las primeras clases sobre la forma de realizar y presentar experimentos.
+    \item La entrega será a través de U-Cursos y deberá incluir el informe junto con el código fuente de la implementación (y todas las indicaciones necesarias para su ejecución).
+    \item Se permiten atrasos con un descuento de 0.5 puntos por día.
+\end{itemize}
+\section{Links}
+\begin{itemize}
+    \item En \href{http://www.gutenberg.org}{http://www.gutenberg.org} puede encontrar una gran cantidad de documentos.
+    \item Otra fuente de datos: \href{http://pizzachili.dcc.uchile.cl/texts/nlang/}{http://pizzachili.dcc.uchile.cl/texts/nlang/} de lenguaje natural.
+    \item En la Introducción de esta publicación se puede encontrar una pequeña explicación de \textit{Linear Probing}: \url{algo.inria.fr/flajolet/Publications/RR3265.ps.gz}
+    \item Publicación de Árbol de Búsqueda Ternario: \url{http://www.cs.princeton.edu/~rs/strings/paper.pdf}
+    \item En la sección 7.4 de \url{http://cglab.ca/~morin/teaching/5408/notes/strings.pdf} puede encontrar una versión optimizada en espacio de los \texttt{Árboles Patricia}.
+\end{itemize}
+
+
+\end{document}
+

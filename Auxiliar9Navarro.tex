@@ -1,0 +1,177 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Auxiliar 9 - ``Algoritmos Aproximados"}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+\begin{center}
+6 de Noviembre del 2017
+\end{center}
+
+
+\vspace{-1ex}
+
+\cfoot{``If P = NP, then the world would be a profoundly different place than we usually assume it to be... Everyone who could appreciate a symphony would be Mozart.''\\Scott Aaronson}
+
+\begin{problems}
+\problem {\large\underline{\textbf{k-center clustering}}}\\
+El problema de \textit{k-center clustering} se define como sigue. Se nos entrega un conjunto $P =
+\{p_1, \ldots, p_n\}$ de $n$ puntos en un espacio métrico, y un entero $k$. Se pide que encontremos $k$ bolas en este espacio que en su conjunto engloben a todos los puntos, de modo que el mayor
+de sus radios sea el mínimo posible. En otras palabras, se nos pide encontrar un conjunto
+$C = \{c_1, \ldots, c_k\}$ de $k$ centros, tal que se minimiza:
+\begin{align*}
+    costo(C) = \max_{i\in [n]}\min_{j\in[k]} d(p_i,c_j)
+\end{align*}
+
+La intuición es que cada punto en $P$ se asigna a su centro más cercano: el conjunto de puntos
+asignado a un centro específico forma un \textit{cluster}. El radio de un \textit{cluster} es la distancia de su centro al punto más lejano a este en el \textit{cluster}. Finalmente, el costo de un \textit{clustering} con $k$ centros es el máximo radio de los \textit{clusters} generados.
+
+\begin{enumerate}[a)]
+\item Suponga que $costo(C)$ es conocido, diseñe una $2$-aproximación para este caso.
+\item Diseñe una $2$-aproximación sin tener la información anterior.
+\end{enumerate}
+
+\problem {\large\underline{\textbf{Interval Scheduling}}}\\
+El problema de \textit{Interval Scheduling} consiste de un conjunto de $n$ pedidos de intervalos de tiempo $[s_{i}, t_{i}], 1 \le i \le n$, para usar un determinado recurso exclusivo (ej. una cabaña de veraneo). Se desea satisfacer la mayor cantidad de pedidos posible, pero no se puede permitir que se traslapen, es decir, se busca un conjunto maximal de intervalos disjuntos. Considere la estrategia general de elegir intervalos según algún criterio definido después de eso sacar todos los intervalos que se intersecten con el escogido y repetir la estrategia hasta que ya no queden intervalos.
+
+\begin{enumerate}[a)]
+\item Muestre que la estrategia de tomar el intervalo que tiene menor tiempo inicial no es una $\rho$- aproximación para ninguna constante $\rho$.
+\item Muestre que la estrategia de tomar el intervalo más corto es una $2$-aproximación.
+\item Muestre que la estrategia de tomar el intervalo con menos intervalos que lo intersectan no es óptima.
+\item Muestre que la estrategia de tomar el intervalo que tiene menor tiempo final es óptima.
+\item Considere ahora que los intervalos están asociados a una clase y que a lo más se puede elegir un intervalo de cada clase. Muestre que la estrategia anterior es una $2$-aproximación.
+\end{enumerate}
+
+\problem {\large\underline{\textbf{Partition}}}\\
+El problema de \textit{Partition} consiste en dada una lista de números $s_{1}, s_{2}, \ldots, s_{n}$, particionar los índices en dos conjuntos $A$ y $B$ de modo que $A \cup B = \{1, 2, \ldots, n\}$ y 
+\begin{align*}
+    \max{\left(\sum_{i\in A}s_{i}, \sum_{i\in B}s_{i}\right)}
+\end{align*}
+es mínima. \textit{Partition} es un problema NP-completo. Diseñe una $(1+\epsilon)$- aproximación para el problema.
+
+\end{problems}
+\newpage
+\begin{center}
+{\huge \underline{Soluciones}}
+\end{center}
+\begin{problems}
+\problem
+\begin{enumerate}[a)]
+\item La $2$-aproximación se obtiene tomando un centro entre los puntos (de manera arbitraria) y agregando a su cluster todos los puntos que estén a distancia $\le 2costo(C)$ y luego repetir este proceso con los puntos restantes si me quedan centros por elegir pero no puntos los elijo arbitrariamente. Es simple notar que este algoritmo entrega una $2$-aproximación, sin embargo, puede que el procedimiento no consiga cubrir todos los puntos con los centros escogidos. Veamos que esto último no sucede, pues al considerar un punto se agregan a su cluster todos aquellos que estaban en la solución óptima (y probablemente más) y por lo tanto el siguiente centro considerado pertenecerá a otro cluster de la solución óptima, si el algoritmo no alcanza a cubrir todos los puntos, significa que los cluster de la solución óptima tampoco lo hace, lo que es una contradicción.
+\item Consideremos el siguiente algoritmo avaro que entrega en $K$ el conjunto de centros:
+\begin{itemize}
+\item Elegir punto $k_{1} \in P$ arbitrariamente.
+\item Repetir $k-1$ veces:
+\begin{itemize}
+    \item Elegir $k_{i} \in P\setminus K$ más lejano a $K$ (donde la distancia de un punto a un conjunto se considera como el mínimo entre las distancias del punto y los puntos del conjunto) y agregarlo a $K$.
+\end{itemize}
+\end{itemize}
+Veamos ahora que esto es una $2$-aproximación. Supondremos que $C$ es el conjunto de centros óptimo y dividiremos el análisis en 2 casos.
+\paragraph{Caso 1} Cada cluster de $C$ contiene exactamente un punto en $K$\\
+
+Consideremos $p\in P$, $\bar{c} \in C$ el centro del cluster donde se encuentra $p$ y $\bar{k} \in K$ el punto de $K$ que está en el cluster de $\bar{c}$. Tenemos que $d(p,\bar{k}) \le d(p, \bar{c}) + d(\bar{c},\bar{k})$ (por desigualdad triangular), pero cada una de estas distancias es una distancia de un punto al centro de su cluster, que es menor o igual al radio de su cluster que es menor o igual a $costo(C)$ y por lo tanto $d(p, \bar{k}) \le 2costo(C)$. Como esto se cumple para cualquier punto $p$ el algoritmo es una $2$-aproximación.
+
+\paragraph{Caso 2} (Por palomar) Hay dos centros $\bar{k}_{1}, \bar{k}_2 \in K$ ambos en el mismo cluster de centro $\bar{c} \in C$.\\ 
+
+Sin mucha pérdida de generalidad supongamos que $\bar{k}_{1}$ fue añadido antes que $\bar{k}_{2}$ por el algoritmo. Consideremos ahora el momento justo antes de agregar $\bar{k}_{2}$ a $K$, entonces se cumple que $|ALG| \le costo(K)$ (pues consideramos un conjunto de centros con menos puntos), además $costo(K) = d(\bar{k}_{2}, K)$ (pues $\bar{k}_{2}$ es el punto más alejado de $K$ en ese momento), en particular esta última distancia es $\le d(\bar{k}_{2}, \bar{k}_{1})$ que por desigualdad triangular es $\le d(\bar{k}_{2}, \bar{c}) + d(\bar{c}, \bar{k}_{1})$ que nuevamente es $\le 2costo(C)$, por lo que el algoritmo es una $2$-aproximación.
+\end{enumerate}
+\problem
+\begin{enumerate}[a)]
+    \item Si suponemos que el algoritmo es una $p$-aproximación podemos construir el siguiente input que lo refuta pues $|ALG| = 1$ mientras que $|OPT| = p+1$
+    \begin{center}
+        \includegraphics[scale=0.5]{imagenes/EST}
+    \end{center}
+    \item Supongamos una solución óptima de intervalos es $OPT$ y los intervalos entregados por el algoritmo es $ALG$. Con esto, primero notemos que cualquier intervalo de $OPT$ debe intersectarse con alguno de $ALG$ (pues en $ALG$ los intervalos son eliminados al interserctarse con alguno escogido). Por otro lado, veamos que un intervalo de $ALG$ se intersecta con a lo más $2$ intervalos de $OPT$ (si se intersectara con tres significaría que uno de ellos está estrictamente contenido en él, el cual debería haber sido escogido antes por la estrategia por ser de largo menor). Finalmente, con estas dos observaciones concluímos que la cantidad de intervalos en $OPT$ no puede ser más que el doble que la cantidad de intervalos en $ALG$, siendo con esto una $2$-aproximación.
+    \item En el siguiente input se encierra la solución óptima, sin embargo el algoritmo obtiene una solución de tamaño 3.
+    \begin{center}
+        \includegraphics[scale=0.5]{imagenes/S}
+    \end{center}
+    \item Para demostrar la optimalidad del algoritmo encontraremos una función inyectiva entre los intervalos de $OPT$ y los de $ALG$ y con esto mostraremos que $|OPT| \le |ALG|$ y por lo tanto $|OPT| = |ALG|$, a esta técnica se le denomina \textit{Charging Argument}. La función es la siguiente:\\
+    
+    Sea un intervalo $J \in OPT$ a este le asignamos aquel intervalo en $ALG$ que tiene menor tiempo final entre los que intersectan a $J$.\\
+    
+    A continuación mostraremos que lo anterior es una función inyectiva.\\
+    
+    \paragraph{Es una función}
+    \begin{itemize}
+        \item Por contradicción, no hay intervalo en $ALG$ que intersecte a $J$, pero esto es una contradicción, análoga a la armada en la parte b).
+        \item Por contradicción, dos intervalos de $ALG$ tienen el mismo tiempo final, pero esto es una contradicción pues eso significaría que hay dos intervalos en $ALG$ que se intersectan entre ellos.
+    \end{itemize}
+    
+    \paragraph{Es inyectiva}
+    Sean dos intervalos $J_1 < J_2 \in OPT$ diferentes supongamos por contradicción que ambos se mapean al mismo intervalo $I \in ALG$. Lo anterior significa que tanto $J_1$ como $J_2$ se intersectan con $I$ y este es el intervalo con menor tiempo final que los intersecta. Por otro lado, se debe cumplir que el tiempo final de $J_1$ es menor al tiempo final de $I$ (sino $I$ no podría intersectar a $J_2$) y entonces $ALG$ no considero a $I$ por sobre $J_1$ pues este último se intersectaba con algún otro intervalo con menor tiempo final que $J_1$, pero esto es una contradicción, pues $I$ es el intervalo de menor tiempo final que intersecta a $J_1$.
+    
+    \item A continuación usaremos un argumento similar al anterior pero mostrando que la función es ``2 a 1'' que quiere decir que a lo más dos intervalos de $ALG$ se evalúan como el mismo intervalo de $OPT$, con lo que $|OPT| \le 2|ALG|$. La función es la siguiente:\\
+    
+    Sea un intervalo $J \in OPT$ a este le asignamos aquel intervalo en $ALG$ que tiene su misma clase, y en caso de no existir aquelque tenga menor tiempo final entre los que intersectan a $J$.\\
+    
+    \paragraph{Es función}
+    \begin{itemize}
+        \item En $ALG$ hay un intervalo con la misma clase que $J$, en tal caso ese intervalo es único (pues en $ALG$ no hay intervalos de una misma clase).
+        \item En $ALG$ no hay intervalo de la misma clase que $J$, entonces se escoge aquel que intersecta con el de menor tiempo final. En este caso el argumento es idéntico al dado en la parte d).
+    \end{itemize}
+    
+    \paragraph{Es 2 a 1} Supongamos por contradicción que existen tres intervalos $J_{1} < J_2 < J_3 \in OPT$ que evalúan al mismo intervalo $I \in ALG$. Veamos que hay 2 razones por ser mapeado a un intervalo, y por palomar dos de estos intervalos $J_{i} < J_{j}$ son mapeados a $I$ por la misma razón.
+    \begin{itemize}
+        \item $J_{i}$ y $J_{j}$ son de la misma clase de $I$, pero esto es una contradicción pues estos intervalos serían de la misma clase.
+        \item $I$ es el intervalo de menor tiempo final que intersecta tanto a $J_{i}$ como a $J_{j}$. La contradicción obtenida es análoga a la de la parte d).
+    \end{itemize}
+\end{enumerate}
+\problem Para ahorrar notación llamemos $w(A) = \sum_{i \in A}s_{i}$, $w(B) = \sum_{i \in B}s_{i}$ a los pesos de los conjuntos, $2W = w(A) + w(B) = \sum_{i = 1}^{n}s_{i}$, al peso total (notemos que $|OPT| \ge W$, pues en el mejor caso ambos conjuntos quedan perfectamente balanceados) y $\left\lceil\frac{1}{\epsilon}\right\rceil-1 = m < n$ ($\epsilon \approx \frac{1}{m+1}$). Y hacemos lo siguiente:
+\begin{itemize}
+    \item \textbf{Primera fase:} Encontrar partición óptima $A'$, $B'$ de los primeros $m$ elementos por fuerza bruta ($\mathcal{O}(2^m) = \mathcal{O}(2^{1/\epsilon})$).
+    \item \textbf{Segunda fase:} Ir agregando el resto de los elementos al conjunto que tenga menor peso en ese momento.
+\end{itemize}
+Para mostrar que esto es una $1+\epsilon$ aproximación supongamos que al final el algoritmo termina con $w(A) \ge w(B)$ (por lo que $|ALG| = w(A)$), así calculamos $\frac{|ALG|}{|OPT|}\le \frac{w(A)}{W}$. Para seguir con el calculo consideremos el momento en el que se agrega a $A$ el último número $s_{k}$, si este fue agregado en la primera fase, entonces el resultado del algoritmo es una solución óptima (pues $A$ termina con los mismos elementos de una solución óptima del problema más pequeño). Por otro lado, si $s_{k}$ fue agregado en la segunda fase, por el funcionamiento del algoritmo se debe cumplir que $w(A)-s_{k} \le w(B) \Rightarrow w(A) \le W + \frac{s_{k}}{2}$, y por lo tanto $\frac{|ALG|}{|OPT|} \le 1 + \frac{s_{k}}{2W}$. Por otro lado, como todos los elementos anteriores a $s_k$ son mayores a él, se cumple que $2W \ge (m+1)s_{k}$, y entonces $\frac{|ALG|}{|OPT|} \le 1 + \frac{s_{k}}{(m+1)s_{k}} = 1 + \epsilon$.
+\end{problems}
+\end{document}

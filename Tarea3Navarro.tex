@@ -1,0 +1,88 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts,setspace}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[spanish]{babel}
+\usepackage[lined,boxed,commentsnumbered]{algorithm2e}
+\SetKwInput{KwIn}{Input}
+\renewcommand{\algorithmcfname}{Algoritmo}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
+
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Tarea Recuperativa - Multiplicación de Matrices}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{Manuel Cáceres}
+\assistantt{Jaime Salas}
+\assistantt{Tomás Perry}
+
+\begin{document}
+\captionsetup[table]{name=Tabla}
+\captionsetup[table]{name=Figura}
+
+\maketitle
+\vspace{-1ex}
+\section{Introducción}
+El problema de \textit{Verificación de Multiplicación de Matrices} (VMM) es como sigue: dadas tres matrices de $n \times n, A, B, C$ de números enteros, queremos verificar si $A\cdot B = C$. Se pide implementar una solución probabilista para este problema y medir su desempeño. Se espera que el alumno implemente individualmente los algoritmos y entregue un informe que indique claramente los siguientes puntos:
+\begin{enumerate}[1.]
+    \item Las \textit{hipótesis} escogidas antes de realizar los experimentos.
+    \item El \textit{diseño experimental}, incluyendo los detalles de la implementación de los algoritmos, la generación de las instancias y las medidas de rendimiento utilizadas.
+    \item La \textit{presentación de los resultados} en forma de una descripción textual, tablas y/o gráficos.
+    \item El \textit{análisis e interpretación} de los resultados.
+\end{enumerate}
+\section{Algoritmo Probabilista}
+La solución que consideraremos es la siguiente, donde la entrada del algoritmo es $A, B, C$ matrices de $n\times n$ y $k\ge 1$ es un parámetro del algoritmo.
+\begin{itemize}
+    \item Repetir $k$ veces:
+    \begin{itemize}
+        \item Escoger vector $\vec{r}\in \{0,1\}^n$, donde cada coordenada es un bit escogido con al azar de manera independiente.
+        \item Si $A\cdot \left(B\cdot \vec{r}\right) \not = C \cdot \vec{r}$, rechazamos.
+    \end{itemize}
+    \item Aceptamos.
+\end{itemize}
+Observe que si $A\cdot B$ es efectivamente $C$, entonces el algoritmo siempre acepta. Si $A\cdot B \not = C$ el algoritmo podría equivocarse y aceptar.
+
+\section{Experimentos}
+Para los experimentos genere dos matrices $A$ y $B$ de $n\times n$, para $n=1000$, con números enteros elegidos al azar e independientemente en el rango $[-10000, 10000]$. Compute $C = A\cdot B$.
+\begin{itemize}
+    \item Para cada $m= 1, \ldots, 10$, deberá alterar la matriz $C$ de la siguiente manera: escoja al azar $100\cdot m$ celdas de la matriz y modifique sus contenidos por nuevos números escogidos al azar y de manera independiente en el rango $[-10000, 10000]$.
+    \item Dadas las matrices $A$, $B$ y la matriz $C$ modificada, para cada $k = 1, 2, 3 ,\ldots$ debe estimar el tiempo y la tasa de error del algoritmo con parámetro $k$ sobre la instancia $A,B,C$. En este caso la tasa de error corresponde a la fracción de ejecuciones en donde el algoritmo acepta. Considere $100$ ejecuciones en cada caso. Debe alcanzar un valor de $k$ tal que la tasa de error sea $0$. Si esto requiere un valor demasiado grande para $k$, indique su tasa de error alcanzada.
+\end{itemize}
+\section{Entrega de la Tarea}
+\begin{itemize}
+    \item La tarea es individual.
+    \item Para la implementación puede utilizar \texttt{C}, \texttt{C++}, \texttt{Java} o \texttt{Python}. Para el informe se recomienda utilizar \LaTeX.
+    \item Escriba un informe claro y conciso. Las ponderaciones del informe y la implementación en su nota final son las mismas.
+\end{itemize}
+\end{document}
+

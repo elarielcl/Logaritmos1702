@@ -1,0 +1,72 @@
+\documentclass[dcc,uchile]{fcfmcourse}
+\usepackage{teoria}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsfonts,setspace}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{csquotes}
+\usepackage{soul}
+\usepackage{emojis}
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{Algoritmo}
+
+%Teoremas, Lemas, etc.
+\theoremstyle{plain}
+\newtheorem{teo}{Teorema}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\theoremstyle{definition}
+\newtheorem{defi}{Definici\'on}
+\newtheorem{obs}{Observaci\'on}
+\newtheorem{ej}{Ejemplo}
+\newtheorem{ejer}{Ejercicio}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{porange}{rgb}{0.9,0.5,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{porange},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pgreen},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$ $},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\newenvironment{codebox} {\small \ttfamily \obeylines \begingroup \setstretch{-2.4}} {\endgroup}
+
+% COmpletar titulo
+\title{Soluciones Control 1}
+\course[CC4102]{Diseño y Análisis de Algoritmos}
+\professor{Gonzalo Navarro}
+\assistant{\textst{Manuel} Ariel Cáceres Reyes}
+
+
+\begin{document}
+\maketitle
+
+
+\vspace{-1ex}
+
+
+\begin{problems}
+\problem Sean $T_{1}, \ldots, T_{n}$ las tuercas en el orden que vienen en el input y $t_{1},\ldots , t_{n}$ los tornillos según vienen en el input. Anotemos $T_{i} \le t_{j}$ si la tuerca $i$ es más chica o calza con el tornillo $j$. Veamos por otro lado, que una asignación de tuercas-tornillos corresponde exactamente a una permutación de los tornillos que los hace calzar con las tuercas según el orden en el que vienen en el input, por lo que hay $n!$ asignaciones posibles. Veamos ahora que el resultado de una comparación $T_{i} \le t_{j}$ reduce los posibles input a aquellas permutaciones de los tornillos en donde $T_{i} \le t_{j}$ y a otras en donde $T_{i} > t_{j}$, y por lo tanto particiona el espacio de posibles asignaciones en $2$. Finalmente, si suponemos que cada una de las asignaciones aparecen en el input con igual probabilidad, gracias al teorema de Shannon tenemos la cota inferior $\log{n!} \sim n\log{n}$.
+\problem 
+\begin{enumerate}[1.]
+    \item Tendremos $N/M \le M/B$ archivos y mandamos aleatoriamente elementos del input a algunos de estos archivos (tenemos buffers de $B$ elementos que nos caben en memoria principal), si alguno de los archivos alcanza los $M$ elementos no se le considera más en la repartición aleatoria del input. Luego uno por uno nos traemos estos archivos a memoria principal, les hacemos shuffle y los mandamos de vuelta a memoria externa. Finalmente vamos eligiendo al azar elementos de alguno de los archivos y los vamos mandando al output (todo esto con buffers). Notar que en términos de I/Os el algoritmo solo unas cuantas pasadas lineales por los datos, es decir $\mathcal{O}(N/B)$.
+    \item El problema con que $N>M^2/B$ es que ya no podemos dividir el input en $N/M$ archivos, pues solo tenemos la capacidad de hacerlo en $M/B$ archivos con lo que los archivos nos quedan de tamaño $N/(M/B)>M$ y no podemos hacer la segunda fase de traer los archivos a memoria y hacerles shuffle ahí. Para resolver lo anterior le haremos shuffle recursivamente a los archivos de tamaño $N/(M/B)$ lo que nos dará archivos de tamaño $N/(M/B)^2$ y así hasta que $N/(M/B)^i = M$ y nos quepan en memoria para hacerles el shuffle. Ahora la complejidad es un proceso lineal, pero que se hace $i=\log_{m}n$ veces por lo que la complejidad final es la de ordenar.
+    %%Multiplicar por M y dividir por B y sale
+\end{enumerate}
+\problem Veamos que en una operación de I/O nos podemos traer $B$ elementos a memoria principal. Esto particiona el conjunto de inputs en a los más $B+1$ conjuntos, lo que genera un árbol de decisión de aridad $B+1$ cuyas hojas son todas las posibles ubicaciones del elemento buscado, es decir, el árbol tiene $N$ hojas. Así, la altura de este árbol será al menos $\log_{B+1}{N}$ y por lo tanto cualquier algoritmo debe hacer al menos $\log_{B+1}{N} \mathcal{O}(\log_{B}{N})$ comparaciones en el peor caso. Para mostrar que esto se cumple también en el caso promedio podemos transformar este árbol de decisión $B+1$-ario a un árbol de decisión binario equivalente con $N$ hojas equiprobables sobre el cual podemos aplicar Shannon y obtener la cota inferior en caso promedio.
+\end{problems}
+\end{document}
